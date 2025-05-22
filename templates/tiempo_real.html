@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Tiempo Real{% endblock %}
+
+{% block content %}
+<h2>Detección en Tiempo Real</h2>
+
+<form id="form-deteccion">
+    <label for="cameraSelect">Selecciona una cámara:</label>
+    <select name="camera_id" id="cameraSelect">
+        {% for cam in camaras %}
+            <option value="{{ cam }}">{{ cam }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="button" onclick="detectar()">Detectar</button>
+</form>
+
+<div id="resultado" style="margin-top: 20px;">
+    <!-- Aquí aparecerá el resultado de la detección -->
+</div>
+
+<script>
+    async function detectar() {
+        const camId = document.getElementById('cameraSelect').value;
+        const resultadoDiv = document.getElementById('resultado');
+
+        resultadoDiv.innerHTML = '<p>Procesando...</p>';
+
+        try {
+            const response = await fetch(`/detect/${camId}`);
+            const data = await response.json();
+
+            if (data.error) {
+                resultadoDiv.innerHTML = `<p><strong>Error:</strong> ${data.error}</p>`;
+            } else {
+                resultadoDiv.innerHTML = `
+                    <h3>Resultado</h3>
+                    <p><strong>Cámara:</strong> ${data.camera_id}</p>
+                    <p><strong>Vehículos detectados:</strong> ${data.vehicle_count}</p>
+                    <p><strong>Resolución:</strong> ${data.resolution}</p>
+                    <p><strong>FPS procesamiento:</strong> ${data.processing_fps}</p>
+                    <img src="${data.image}" alt="Imagen procesada" style="max-width:100%; height:auto;">
+                `;
+            }
+        } catch (err) {
+            resultadoDiv.innerHTML = `<p><strong>Error en la solicitud:</strong> ${err}</p>`;
+        }
+    }
+</script>
+{% endblock %}

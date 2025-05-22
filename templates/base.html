@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Contaminación Valencia{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Inicio</a></li>
+            <li><a href="{{ url_for('imagenes') }}">Imágenes YOLO</a></li>
+            <li><a href="{{ url_for('datos') }}">Datos</a></li>
+            <li><a href="{{ url_for('ml') }}">Machine Learning</a></li>
+            <li><a href="{{ url_for('chat') }}">Chat</a></li>
+            <li><a href="{{ url_for('tiempo_real') }}">Tiempo Real</a></li>
+            <li><a href="{{ url_for('repositorio') }}">Repositorio</a></li>
+        </ul>
+    </nav>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Imágenes Anotadas{% endblock %}
+{% block content %}
+<h2>Imágenes Anotadas - {{ camara }}</h2>
+
+<form method="get">
+    <label for="camara">Cámara:</label>
+    <select name="camara">
+        {% for c in camaras %}
+            <option value="{{ c }}" {% if c == camara %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="fecha">Fecha:</label>
+    <input type="text" name="fecha" value="{{ fecha }}" placeholder="YYYYMMDD">
+
+    <button type="submit">Buscar</button>
+</form>
+
+{% if horas %}
+    <h3>Horas disponibles:</h3>
+    <div>
+        {% for h in horas %}
+            <a href="?camara={{ camara }}&fecha={{ fecha }}&hora={{ h }}">{{ h }}:00</a>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if hora_filtro %}
+    <h3>Imágenes para la hora {{ hora_filtro }}:00</h3>
+    <div class="imagenes-grid">
+        {% for img in imagenes %}
+            <div class="imagen-card">
+                <img src="{{ img.ruta_local }}" alt="{{ img.nombre }}" width="400">
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}
