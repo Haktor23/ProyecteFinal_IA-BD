@@ -12,7 +12,6 @@ CORS(app)
 
 # Configuración del modelo YOLO
 model = YOLO("yolo11x.pt")
-
 vehicle_classes = [2, 3, 5, 7]  # COCO classes: car(2), motorcycle(3), bus(5), truck(7)
 
 cameras = [
@@ -153,4 +152,11 @@ def home():
     })
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, threaded=True)
+    app.run(host='0.0.0.0', port=5001, threaded=True)
+    
+    from flask import render_template  # Añade esto al inicio con los otros imports
+
+# Modifica la ruta principal para servir el HTML
+@app.route('/')
+def home():
+    return render_template('./index.html')

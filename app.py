@@ -1,8 +1,7 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
+import requests
+from model import tiemporeal
 from pythonScripts import historico
-
-
-from pythonScripts import tiemporeal
 
 app = Flask(__name__)
 
@@ -26,9 +25,23 @@ def ml():
 def chat():
     return render_template('chat.html')
 
-@app.route('/tiempo-real')
+@app.route('/tiempo-real', methods=['GET'])
 def tiempo_real():
-    return render_template('tiempo_real.html')
+    camaras = tiemporeal.cameras
+    camara = request.args.get('camara', camaras[0])  # Por defecto, primera cámara
+
+    datos = None
+    if camara:
+        try:
+            response = requests.get(f'http://localhost:5001/detect/{camara}', timeout=10)
+            if response.status_code == 200:
+                datos = response.json()
+            else:
+                datos = {'error': f"No se pudo obtener datos de la cámara {camara}"}
+        except Exception as e:
+            datos = {'error': str(e)}
+
+    return render_template('tiempo_real.html', camaras=camaras, camara=camara, datos=datos)
 
 @app.route('/repositorio')
 def repositorio():

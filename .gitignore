@@ -1,1 +1,49 @@
 yolo11x.pt
+# Entornos virtuales
+venv/
+venv-*/
+.env/
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Archivos temporales
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Archivos de modelos y datasets
+*.pt
+*.onnx
+*.h5
+*.ckpt
+*.npy
+*.npz
+*.csv
+*.json
+
+# Archivos generados por VSCode
+.vscode/
+.settings/
+
+# Archivos generados por Jupyter o notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Configuración de sistema y usuario
+.DS_Store
+Thumbs.db
+
+# Archivos del sistema Qodo (si no quieres subirlos)
+.qodo/
+
+# Archivos de Flask en ejecución
+instance/
+*.db
+*.sqlite3
+
+# Git
+.gitignore
