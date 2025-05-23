@@ -1,30 +1,59 @@
 {% extends "base.html" %}
 
-{% block title %}Inicio{% endblock %}
+{% block title %}Detección en Tiempo Real{% endblock %}
 
-{% block page_title %}Panel de Control Principal{% endblock %}
+{% block page_title %}{{ titulo if titulo else "Panel de Control - Tiempo Real" }}{% endblock %}
 
 {% block page_description %}
-    Bienvenido al sistema inteligente de análisis con IA y Big Data. 
-    Explora las diferentes funcionalidades disponibles en las pestañas superiores.
+    {{ descripcion if descripcion else "Bienvenido al sistema inteligente de análisis con IA y Big Data." }}
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
+
+{# Cabecera específica de esta página, usando variables del contexto #}
+<div class="page-header mb-4"> {# mb-4 es un margen inferior de ejemplo #}
     <h1 class="page-title">{{ titulo if titulo else "Panel de Control Principal" }}</h1>
     <p class="page-description">
         {{ descripcion if descripcion else "Bienvenido al sistema inteligente de análisis con IA y Big Data. Explora las diferentes funcionalidades disponibles en las pestañas superiores." }}
     </p>
 </div>
 
-<!-- Tarjetas de estadísticas -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+<h2>Detección en Tiempo Real - Cámara: {{ camara if camara else "Ninguna seleccionada" }}</h2>
+
+<form method="get" action="{{ url_for('realtime_page') }}"> {# Asegúrate que la acción es la ruta correcta #}
+    <label for="camara">Selecciona Cámara:</label>
+    <select name="camara" id="camara">
+        <option value="">-- Selecciona una cámara --</option>
+        {% for c in camaras_disponibles %} {# Cambiado a camaras_disponibles para evitar conflicto con la variable 'camara' seleccionada #}
+            <option value="{{ c }}" {% if c == camara %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Ver</button>
+</form>
+
+{% if datos_deteccion %} {# Cambiado a datos_deteccion para claridad #}
+    {% if datos_deteccion.error %}
+        <p style="color: red;">Error: {{ datos_deteccion.error }}</p>
+    {% elif datos_deteccion.message %} {# Para mensajes como "selecciona una cámara" #}
+        <p>{{ datos_deteccion.message }}</p>
+    {% else %}
+        <h3>Vehículos detectados: {{ datos_deteccion.vehicle_count }}</h3>
+        <p>Resolución: {{ datos_deteccion.resolution }}</p>
+        <p>FPS procesamiento: {{ datos_deteccion.processing_fps }}</p>
+        <img src="{{ datos_deteccion.image }}" alt="Imagen anotada" width="600" style="max-width: 100%; height: auto; border: 1px solid #ddd; margin-top: 10px;">
+    {% endif %}
+{% endif %}
+
+{# Estas tarjetas usan datos que podrían venir de otro contexto o ser estáticos. #}
+{# Por ahora, usarán los fallbacks o los datos que les pases específicamente. #}
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-top: 2rem; margin-bottom: 2rem;">
     <div class="card" style="text-align: center;">
         <div style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
             <i class="fas fa-video" style="font-size: 2rem; color: white;"></i>
         </div>
         <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Cámaras Activas</h3>
-        <p style="font-size: 2rem; font-weight: 700; color: var(--primary-color); margin-bottom: 0.5rem;">{{ datos.camaras if datos and datos.camaras else "8" }}</p>
+        {# Asumimos que card_stats.active_cameras vendrá del contexto, o usa el fallback #}
+        <p style="font-size: 2rem; font-weight: 700; color: var(--primary-color); margin-bottom: 0.5rem;">{{ card_stats.active_cameras if card_stats and card_stats.active_cameras else "8" }}</p>
         <p style="color: var(--text-muted); font-size: 0.875rem;">Sistemas de vigilancia operativos</p>
         <a href="/camaras" class="btn" style="margin-top: 1rem;">
             <i class="fas fa-eye"></i>
@@ -37,7 +66,7 @@
             <i class="fas fa-satellite-dish" style="font-size: 2rem; color: white;"></i>
         </div>
         <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Análisis en Tiempo Real</h3>
-        <p style="font-size: 2rem; font-weight: 700; color: var(--accent-color); margin-bottom: 0.5rem;">{{ datos.realtime if datos and datos.realtime else "24/7" }}</p>
+        <p style="font-size: 2rem; font-weight: 700; color: var(--accent-color); margin-bottom: 0.5rem;">{{ card_stats.realtime_status if card_stats and card_stats.realtime_status else "24/7" }}</p>
         <p style="color: var(--text-muted); font-size: 0.875rem;">Monitoreo continuo activo</p>
         <a href="/realtime" class="btn" style="margin-top: 1rem; background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));">
             <i class="fas fa-play"></i>
@@ -50,4 +79,13 @@
             <i class="fas fa-brain" style="font-size: 2rem; color: white;"></i>
         </div>
         <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Modelos IA</h3>
-        <p style="font-
+        <p style="font-size: 2rem; font-weight: 700; color: var(--success-color); margin-bottom: 0.5rem;">{{ card_stats.ai_models if card_stats and card_stats.ai_models else "5" }}</p>
+        <p style="color: var(--text-muted); font-size: 0.875rem;">Modelos entrenados disponibles</p>
+        <a href="/machinelearning" class="btn" style="margin-top: 1rem;">
+            <i class="fas fa-brain"></i>
+            Ver Modelos
+        </a>
+    </div>
+</div>
+
+{% endblock %}
