@@ -1,8 +1,9 @@
+from elasticsearch import Elasticsearch
 # ==================== PLANTILLA PARA ARCHIVOS UTILS ====================
 # Copiar este contenido para cada archivo en utils/
 # Ejemplo: utils/camaras.py
 
-def obtener_contexto():
+def obtener_contexto(query):
     """
     Función que retorna el contexto para el template HTML
     Debe ser implementada por cada módulo
@@ -10,11 +11,14 @@ def obtener_contexto():
     Returns:
         dict: Diccionario con datos para el template
     """
+    results = index(query)
     return {
-        'titulo': 'Nombre de la Sección',
-        'descripcion': 'Descripción de la funcionalidad',
+        'titulo': 'Elastic Search',
+        'descripcion': 'Información en chUnks para el RAG',
         'datos': [],
-        'estado': 'Activo'
+        'estado': 'Activo',
+        'query': query,
+        'results': results
     }
 
 def procesar_datos(data=None):
@@ -77,29 +81,30 @@ def procesar_archivo(file):
 # ==================== FUNCIONES ESPECÍFICAS DEL MÓDULO ====================
 # Agregar aquí las funciones específicas de cada módulo
 
-def funcion_especifica():
-    """Función específica del módulo - implementar según necesidades"""
-    pass
 
-# ==================== EJEMPLOS POR MÓDULO ====================
 
-# EJEMPLO PARA utils/camaras.py:
-def obtener_camaras_disponibles():
-    """Retorna lista de cámaras disponibles"""
-    return ['Cámara 1', 'Cámara 2', 'Cámara 3']
+def index(query):
+    # Conexión a Elasticsearch
+    es = Elasticsearch("http://172.205.145.224:9200")
 
-def procesar_imagen(imagen_path):
-    """Procesa una imagen de cámara"""
-    # Implementar procesamiento de imagen
-    pass
+    INDEX_NAME = "calidad_aire"
 
-# EJEMPLO PARA utils/chatbot.py:
-def procesar_mensaje(data):
-    """Procesa mensaje del chatbot"""
-    mensaje = data.get('mensaje', '')
-    respuesta = f"Respuesta automática a: {mensaje}"
-    return {
-        'status': 'success',
-        'respuesta': respuesta
+    results = []
+
+    if query:
+        es_query = {
+    "_source": ["title", "description", "page_number", "document_name","content"],
+    "query": {
+        "multi_match": {
+            "query": query,
+            "fields": ["title", "description", "content"]
+        }
     }
-    
+}
+        if query:
+            print(f"🔍 Buscando: {query}")
+            print(f"🧠 Query ES: {es_query}")
+            response = es.search(index=INDEX_NAME, body=es_query)
+            print(f"📥 Respuesta ES: {response}")
+            results = response["hits"]["hits"]
+            return results

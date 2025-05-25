@@ -1,105 +1,54 @@
-# ==================== PLANTILLA PARA ARCHIVOS UTILS ====================
-# Copiar este contenido para cada archivo en utils/
-# Ejemplo: utils/camaras.py
+import random
 
-def obtener_contexto():
-    """
-    Función que retorna el contexto para el template HTML
-    Debe ser implementada por cada módulo
-    
-    Returns:
-        dict: Diccionario con datos para el template
-    """
+def obtener_contexto(id=None, datos=None):
+    modelos = [
+        {
+            'id': 'modelo1',
+            'nombre': 'Predicción de PM2.5',
+            'campos': [{'nombre': 'temperatura', 'label': 'Temperatura (°C)'}, {'nombre': 'humedad', 'label': 'Humedad (%)'}]
+        },
+        {
+            'id': 'modelo2',
+            'nombre': 'Clasificación de Calidad del Aire',
+            'campos': [{'nombre': 'pm10', 'label': 'PM10 (μg/m3)'}, {'nombre': 'no2', 'label': 'NO2 (ppb)'}]
+        },
+        {
+            'id': 'modelo3',
+            'nombre': 'Nivel de Ozono Estimado',
+            'campos': [{'nombre': 'uv', 'label': 'Radiación UV'}, {'nombre': 'hora', 'label': 'Hora del Día'}]
+        },
+        {
+            'id': 'modelo4',
+            'nombre': 'Previsión de CO2 Ambiental',
+            'campos': [{'nombre': 'trafico', 'label': 'Tráfico Vehicular'}, {'nombre': 'viento', 'label': 'Velocidad del Viento'}]
+        },
+        {
+            'id': 'modelo5',
+            'nombre': 'Índice de Riesgo Respiratorio',
+            'campos': [{'nombre': 'pm25', 'label': 'PM2.5'}, {'nombre': 'edad', 'label': 'Edad del Individuo'}]
+        }
+    ]
+
+    resultados = {m['id']: None for m in modelos}
+    if id and datos:
+        resultados[id] = procesar_simulacion(id, datos)
+
     return {
-        'titulo': 'Nombre de la Sección',
-        'descripcion': 'Descripción de la funcionalidad',
-        'datos': [],
-        'estado': 'Activo'
+        'titulo': 'Modelos de Machine Learning',
+        'descripcion': 'Simulaciones de modelos para predecir distintos aspectos de la calidad del aire.',
+        'modelos': modelos,
+        'resultados': resultados
     }
 
-def procesar_datos(data=None):
-    """
-    Función principal para procesar datos del módulo
-    Llamada desde las rutas API POST
-    
-    Args:
-        data (dict): Datos recibidos del frontend
-    
-    Returns:
-        dict: Resultado del procesamiento
-    """
-    try:
-        # Implementar lógica específica del módulo
-        resultado = {
-            'status': 'success',
-            'message': 'Datos procesados correctamente',
-            'data': data if data else {}
-        }
-        return resultado
-    except Exception as e:
-        return {
-            'status': 'error',
-            'message': f'Error al procesar datos: {str(e)}'
-        }
-
-def procesar_archivo(file):
-    """
-    Función para procesar archivos subidos (opcional)
-    Solo implementar si el módulo necesita manejar archivos
-    
-    Args:
-        file: Archivo subido desde el frontend
-    
-    Returns:
-        dict: Resultado del procesamiento del archivo
-    """
-    import os
-    from werkzeug.utils import secure_filename
-    
-    try:
-        filename = secure_filename(file.filename)
-        filepath = os.path.join('data/uploads', filename)
-        file.save(filepath)
-        
-        # Implementar lógica específica para el archivo
-        resultado = {
-            'status': 'success',
-            'message': f'Archivo {filename} procesado correctamente',
-            'filepath': filepath
-        }
-        return resultado
-    except Exception as e:
-        return {
-            'status': 'error',
-            'message': f'Error al procesar archivo: {str(e)}'
-        }
-
-# ==================== FUNCIONES ESPECÍFICAS DEL MÓDULO ====================
-# Agregar aquí las funciones específicas de cada módulo
-
-def funcion_especifica():
-    """Función específica del módulo - implementar según necesidades"""
-    pass
-
-# ==================== EJEMPLOS POR MÓDULO ====================
-
-# EJEMPLO PARA utils/camaras.py:
-def obtener_camaras_disponibles():
-    """Retorna lista de cámaras disponibles"""
-    return ['Cámara 1', 'Cámara 2', 'Cámara 3']
-
-def procesar_imagen(imagen_path):
-    """Procesa una imagen de cámara"""
-    # Implementar procesamiento de imagen
-    pass
-
-# EJEMPLO PARA utils/chatbot.py:
-def procesar_mensaje(data):
-    """Procesa mensaje del chatbot"""
-    mensaje = data.get('mensaje', '')
-    respuesta = f"Respuesta automática a: {mensaje}"
-    return {
-        'status': 'success',
-        'respuesta': respuesta
-    }
-    
+def procesar_simulacion(id, datos):
+    if id == 'modelo1':
+        return f"PM2.5 estimado: {round(random.uniform(10, 150), 2)} μg/m³"
+    elif id == 'modelo2':
+        return f"Calidad del Aire: {random.choice(['Buena', 'Moderada', 'Pobre'])}"
+    elif id == 'modelo3':
+        return f"Nivel de Ozono estimado: {round(random.uniform(20, 120), 2)} ppb"
+    elif id == 'modelo4':
+        return f"Nivel de CO2: {round(random.uniform(300, 600), 2)} ppm"
+    elif id == 'modelo5':
+        return f"Riesgo Respiratorio: {random.choice(['Bajo', 'Medio', 'Alto'])}"
+    return "Modelo no encontrado"

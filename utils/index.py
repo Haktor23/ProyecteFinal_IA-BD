@@ -11,8 +11,8 @@ def obtener_contexto():
         dict: Diccionario con datos para el template
     """
     return {
-        'titulo': 'Nombre de la Sección',
-        'descripcion': 'Descripción de la funcionalidad',
+        'titulo': 'Proyecto calidad del aire en Valencia',
+        'descripcion': 'Trabajo de Big Data e IA para conocer los efectos del trafico en la calidad del aire',
         'datos': [],
         'estado': 'Activo'
     }

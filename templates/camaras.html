@@ -1,61 +1,152 @@
 {% extends "base.html" %}
 
-{% block title %}Inicio{% endblock %}
+{% block title %}Galería de Cámaras{% endblock %}
 
-{% block page_title %}Panel de Control Principal{% endblock %}
 
-{% block page_description %}
-    Bienvenido al sistema inteligente de análisis con IA y Big Data. 
-    Explora las diferentes funcionalidades disponibles en las pestañas superiores.
-{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1 class="page-title">{{ titulo if titulo else "Panel de Control Principal" }}</h1>
-    <p class="page-description">
-        {{ descripcion if descripcion else "Bienvenido al sistema inteligente de análisis con IA y Big Data. Explora las diferentes funcionalidades disponibles en las pestañas superiores." }}
-    </p>
+    <h1 class="page-title">{{ titulo }}</h1>
+    <p class="page-description">{{ descripcion }}</p>
 </div>
+<style>
+.gallery-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; /* smooth scrolling en iOS */
+  gap: 1rem;
+  padding-bottom: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
+}
 
-<!-- Tarjetas de estadísticas -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
-    <div class="card" style="text-align: center;">
-        <div style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-            <i class="fas fa-video" style="font-size: 2rem; color: white;"></i>
-        </div>
-        <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Cámaras Activas</h3>
-        <p style="font-size: 2rem; font-weight: 700; color: var(--primary-color); margin-bottom: 0.5rem;">{{ datos.camaras if datos and datos.camaras else "8" }}</p>
-        <p style="color: var(--text-muted); font-size: 0.875rem;">Sistemas de vigilancia operativos</p>
-        <a href="/camaras" class="btn" style="margin-top: 1rem;">
-            <i class="fas fa-eye"></i>
-            Ver Cámaras
-        </a>
-    </div>
+.gallery-container::-webkit-scrollbar {
+  height: 8px;
+}
 
-    <div class="card" style="text-align: center;">
-        <div style="background: linear-gradient(135deg, var(--accent-color), var(--secondary-color)); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-            <i class="fas fa-satellite-dish" style="font-size: 2rem; color: white;"></i>
-        </div>
-        <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Análisis en Tiempo Real</h3>
-        <p style="font-size: 2rem; font-weight: 700; color: var(--accent-color); margin-bottom: 0.5rem;">{{ datos.realtime if datos and datos.realtime else "24/7" }}</p>
-        <p style="color: var(--text-muted); font-size: 0.875rem;">Monitoreo continuo activo</p>
-        <a href="/realtime" class="btn" style="margin-top: 1rem; background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));">
-            <i class="fas fa-play"></i>
-            Tiempo Real
-        </a>
-    </div>
+.gallery-container::-webkit-scrollbar-track {
+  background: transparent;
+}
 
-    <div class="card" style="text-align: center;">
-        <div style="background: linear-gradient(135deg, var(--success-color), var(--accent-color)); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-            <i class="fas fa-brain" style="font-size: 2rem; color: white;"></i>
-        </div>
-        <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Modelos IA</h3>
-        <p style="font-size: 2rem; font-weight: 700; color: var(--success-color); margin-bottom: 0.5rem;">{{ datos.modelos if datos and datos.modelos else "5" }}</p>
-        <p style="color: var(--text-muted); font-size: 0.875rem;">Modelos entrenados disponibles</p>
-        <a href="/machinelearning" class="btn" style="margin-top: 1rem;">
-            <i class="fas fa-brain"></i>
-            Ver Modelos
-        </a>
+.gallery-container::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 4px;
+}
+
+.gallery-item {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  width: 220px;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  background: #fff;
+}
+
+.gallery-item img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  user-select: none;
+}
+
+.gallery-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+/* Opcional: ocultar scrollbar en dispositivos táctiles */
+@media (pointer: coarse) {
+  .gallery-container {
+    scrollbar-width: none;
+  }
+  .gallery-container::-webkit-scrollbar {
+    display: none;
+  }
+}
+</style>
+<form method="get" action="{{ url_for('camaras_page') }}" class="form-inline mb-4">
+    <button id="btnProcesar" class="btn btn-primary">Actualizar Datos</button>
+<span id="loader" style="display:none; margin-left:10px;">
+    <img src="https://i.gifer.com/ZZ5H.gif" alt="Cargando..." width="30" />
+    <span>Esto puede durar unos minutos...</span>
+</span>
+<br>
+<br>
+    <label for="camara">Cámara:</label>
+    <select name="camara" id="camara" class="form-control mx-2">
+        <option value="">-- Selecciona una cámara --</option>
+        {% for c in camaras %}
+            <option value="{{ c }}" {% if c == camara_seleccionada %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+    </select>
+<br>
+<br>
+    <label for="fecha">Fecha:</label>
+    <select name="fecha" id="fecha" class="form-control mx-2">
+        <option value="">-- Selecciona una fecha --</option>
+        {% for f in fechas %}
+            <option value="{{ f }}" {% if f == fecha_seleccionada %}selected{% endif %}>{{ f }}</option>
+        {% endfor %}
+    </select>
+<br>
+<br>
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+</form>
+<br>
+<br><br>
+<br>
+{% if imagenes %}
+<div class="gallery-container" tabindex="0" aria-label="Galería de imágenes">
+    {% for url in imagenes %}
+    <div class="gallery-item">
+        <img src="{{ url }}" alt="Imagen de cámara" loading="lazy" />
     </div>
+    {% endfor %}
 </div>
+{% else %}
+<p>No se encontraron imágenes para los filtros seleccionados.</p>
+{% endif %}
+
+<script>
+// Redirigir al seleccionar una cámara para actualizar fechas
+document.getElementById('camara').addEventListener('change', function () {
+    const camara = this.value;
+    const url = new URL(window.location.href);
+    url.searchParams.set('camara', camara);
+    url.searchParams.delete('fecha'); // borra la fecha para forzar recálculo
+    window.location.href = url.toString();
+});
+</script>
+<script>
+document.getElementById('btnProcesar').addEventListener('click', function() {
+    const btn = this;
+    const loader = document.getElementById('loader');
+    btn.disabled = true;
+    loader.style.display = 'inline-flex';
+
+    fetch('{{ url_for("procesar_datos_route") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data.mensaje);
+        // Esperamos un tiempo prudente para que el proceso termine (puedes ajustar)
+        setTimeout(() => {
+            location.reload();
+        }, 3000);  // por ejemplo 3 segundos, ajusta o usa WebSocket para saber cuando termina
+    })
+    .catch(error => {
+        alert('Error al iniciar el proceso');
+        btn.disabled = false;
+        loader.style.display = 'none';
+    });
+});
+</script>
+
 {% endblock %}
