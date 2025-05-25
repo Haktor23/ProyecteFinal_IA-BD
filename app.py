@@ -115,6 +115,20 @@ def machinelearning_modelo(id):
     contexto = machinelearning.obtener_contexto(id=id, datos=datos)
     return render_template('machinelearning.html', **contexto)
 
+<<<<<<< Updated upstream
+=======
+@app.route('/temperaturas')
+def temperaturas_page():
+    """Página de datos meteorológicos y temperaturas"""
+    try:
+        # Esta función debe existir en utils/temperaturas.py y preparar el contexto inicial
+        contexto = temperatura.obtener_contexto()
+        return render_template('temperaturas.html', **contexto) # Asegúrate que 'temperaturas.html' existe
+    except Exception as e:
+        app.logger.error(f"Error en /temperaturas: {e}")
+        # Considera una plantilla de error genérica o un manejo más robusto
+        return render_template('temperaturas.html', error=str(e), titulo="Error en Meteorología", descripcion="No se pudo cargar la página de datos meteorológicos.")
+>>>>>>> Stashed changes
 
 
 # ==================== RUTAS API (POST) ====================
@@ -199,6 +213,46 @@ def api_machinelearning():
         return jsonify(resultado)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+<<<<<<< Updated upstream
+=======
+    
+@app.route('/api/datos_temperatura', methods=['POST'])
+def api_datos_temperatura():
+    """
+    Endpoint específico para que DataTables obtenga los datos de temperatura.
+    """
+    try:
+        # La plantilla temperaturas.html que generamos SÍ envía JSON:
+        # contentType: "application/json" y data: JSON.stringify(d)
+        # Por lo tanto, aquí usamos request.get_json()
+        if request.is_json:
+            request_data = request.get_json()
+        else:
+            # Fallback o error si no es JSON, aunque el frontend está configurado para enviar JSON.
+            # DataTables puede enviar como form data si contentType no es 'application/json'.
+            # Para ser robusto, podrías manejar ambos o forzar JSON.
+            # Por ahora, asumimos que siempre será JSON según la plantilla.
+            app.logger.warning("/api/datos_temperatura recibió datos no JSON, usando request.form como fallback.")
+            request_data = request.form.to_dict() # Convertir ImmutableMultiDict a dict normal
+
+        response_data = temperatura.procesar_para_datatable_temperatura(request_data)
+        return jsonify(response_data)
+    except Exception as e:
+        app.logger.error(f"Error en /api/datos_temperatura: {e}")
+        # Intentar obtener 'draw' de la manera más segura posible
+        draw_val = 0
+        if request.is_json:
+            try:
+                draw_val = request.get_json().get('draw',0)
+            except:
+                pass # si get_json falla
+        else:
+            draw_val = request.form.get('draw', request.args.get('draw',0))
+
+        return jsonify({'error': str(e), 'data': [], 'recordsFiltered': 0, 'recordsTotal': 0, 'draw': draw_val}), 500
+
+
+>>>>>>> Stashed changes
 
 # ==================== RUTAS DE ARCHIVOS ====================
 
