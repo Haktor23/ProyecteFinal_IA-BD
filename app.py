@@ -10,6 +10,7 @@ from utils import calidad
 from utils import chatbot
 from utils import rag
 from utils import machinelearning
+from utils import temperatura
 
 app = Flask(__name__)
 
@@ -115,8 +116,6 @@ def machinelearning_modelo(id):
     contexto = machinelearning.obtener_contexto(id=id, datos=datos)
     return render_template('machinelearning.html', **contexto)
 
-<<<<<<< Updated upstream
-=======
 @app.route('/temperaturas')
 def temperaturas_page():
     """Página de datos meteorológicos y temperaturas"""
@@ -128,7 +127,7 @@ def temperaturas_page():
         app.logger.error(f"Error en /temperaturas: {e}")
         # Considera una plantilla de error genérica o un manejo más robusto
         return render_template('temperaturas.html', error=str(e), titulo="Error en Meteorología", descripcion="No se pudo cargar la página de datos meteorológicos.")
->>>>>>> Stashed changes
+
 
 
 # ==================== RUTAS API (POST) ====================
@@ -213,8 +212,6 @@ def api_machinelearning():
         return jsonify(resultado)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-<<<<<<< Updated upstream
-=======
     
 @app.route('/api/datos_temperatura', methods=['POST'])
 def api_datos_temperatura():
@@ -252,7 +249,6 @@ def api_datos_temperatura():
         return jsonify({'error': str(e), 'data': [], 'recordsFiltered': 0, 'recordsTotal': 0, 'draw': draw_val}), 500
 
 
->>>>>>> Stashed changes
 
 # ==================== RUTAS DE ARCHIVOS ====================
 
