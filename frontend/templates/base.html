@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}IA & Big Data{% endblock %} | Proyecto Final</title>
+    
+    <!-- Fuentes modernas -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+      <!-- CSS personalizado -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- CSS adicional específico de cada página -->
+    {% block extra_css %}{% endblock %}
+    </head>
+<body>
+    <!-- Overlay de transición -->
+    <div class="page-transition" id="pageTransition">
+        <div class="loader"></div>
+    </div>
+
+    <div class="main-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="nav-container">
+                <!-- Brand -->
+                <div class="nav-brand">
+                    <div class="logo">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="brand-text">
+                        <div class="brand-title">IA & Big Data</div>
+                        <div class="brand-subtitle">Sistema Inteligente de Análisis</div>
+                    </div>
+                </div>
+
+                <!-- Navegación por pestañas -->
+                <nav class="nav-tabs">
+                    <a href="/index" class="nav-tab" data-page="index">
+                        <i class="fas fa-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                    <a href="/camaras" class="nav-tab" data-page="camaras">
+                        <i class="fas fa-video"></i>
+                        <span>Cámaras</span>
+                    </a>
+                    <a href="/realtime" class="nav-tab" data-page="realtime">
+                        <i class="fas fa-satellite-dish"></i>
+                        <span>Tiempo Real</span>
+                    </a>
+                    <a href="/tiempo" class="nav-tab" data-page="tiempo">
+                        <i class="fas fa-clock"></i>
+                        <span>Análisis Temporal</span>
+                    </a>
+                    <a href="/calidad" class="nav-tab" data-page="calidad">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Calidad</span>
+                    </a>
+                    <a href="/chatbot" class="nav-tab" data-page="chatbot">
+                        <i class="fas fa-robot"></i>
+                        <span>ChatBot</span>
+                    </a>
+                    <a href="/rag" class="nav-tab" data-page="rag">
+                        <i class="fas fa-search"></i>
+                        <span>RAG</span>
+                    </a>
+                    <a href="/machinelearning" class="nav-tab" data-page="machinelearning">
+                        <i class="fas fa-brain"></i>
+                        <span>Machine Learning</span>
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+            {% if error %}
+            <div class="card" style="border-color: var(--error-color); background: rgba(239, 68, 68, 0.1);">
+                <div style="display: flex; align-items: center; gap: 1rem; color: var(--error-color);">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
+                    <div>
+                        <h3 style="margin-bottom: 0.5rem;">Error</h3>
+                        <p>{{ error }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% block content %}
+            <div class="page-header">
+                <h1 class="page-title">{% block page_title %}Bienvenido{% endblock %}</h1>
+                <p class="page-description">{% block page_description %}Sistema inteligente de análisis con IA y Big Data{% endblock %}</p>
+            </div>
+
+            <div class="card">
+                <h2 style="margin-bottom: 1rem;">Contenido por defecto</h2>
+                <p>Este es el contenido por defecto. Cada página debe sobrescribir este bloque.</p>
+                <button class="btn" style="margin-top: 1rem;">
+                    <i class="fas fa-rocket"></i>
+                    Comenzar
+                </button>
+            </div>
+            {% endblock %}
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-title">Trabajo Final de IA y Big Data</div>
+                <div class="footer-subtitle">
+                    Desarrollado con ❤️ por el equipo de desarrollo | 2025
+                </div>
+                <div class="footer-icons">
+                    <div class="footer-icon" title="Inteligencia Artificial">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="footer-icon" title="Big Data">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="footer-icon" title="Machine Learning">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <div class="footer-icon" title="Análisis">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+ 
+    <!-- JavaScript principal -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- JavaScript adicional específico de cada página -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
