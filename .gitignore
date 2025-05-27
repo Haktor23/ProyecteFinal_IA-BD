@@ -1,3 +1,4 @@
 venv/
 .venv/
 yolo11x.pt
+__pycache__

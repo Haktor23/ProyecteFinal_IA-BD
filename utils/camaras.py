@@ -30,8 +30,8 @@ def obtener_contexto():
             urls = df.sample(10)['URL'].tolist()
         else:
             urls = df_filtrado['URL'].tolist()
-            if len(urls) > 20:
-                urls = urls[:20]
+            if len(urls) > 1:
+                urls = urls[:50]
 
         return {
             'titulo': 'Galería de Cámaras',
