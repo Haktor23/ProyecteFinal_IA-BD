@@ -188,10 +188,10 @@ def api_chatbot():
     """API para el chatbot"""
     try:
         data = request.get_json()
-        resultado = chatbot.procesar_mensaje(data)
-        return jsonify(resultado)
+        return chatbot.procesar_mensaje(data)  # <-- Aquí directo
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/rag', methods=['POST'])
 def api_rag():
