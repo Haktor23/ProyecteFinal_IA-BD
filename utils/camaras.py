@@ -35,7 +35,7 @@ def obtener_contexto():
 
         return {
             'titulo': 'Galería de Cámaras',
-            'descripcion': 'Filtra por cámara y fecha, o explora imágenes aleatorias.',
+            'descripcion': 'En esta sección encontrarás todas las cámaras que han sido analizadas previamente para obtener datos de tráfico. Las imágenes se capturaron mediante el protocolo RTSP, mejorando su calidad con el modelo Real-ESRGAN. Después, se analizaron con YOLOv11x para detectar vehículos y dejar cada imagen completamente revisada.',
             'imagenes': urls,
             'estado': 'Activo',
             'camaras': camaras_disponibles,

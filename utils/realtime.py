@@ -115,8 +115,8 @@ def _get_detection_data_internal(camera_id):
 
 def obtener_contexto():
     contexto = {
-        'titulo': "Detección de Vehículos en Tiempo Real",
-        'descripcion': "Selecciona una cámara para ver el análisis de tráfico y conteo de vehículos.",
+        'titulo': "Estado de tráfico en Tiempo Real",
+        'descripcion': "En esta sección encontrarás el estado del tráfico en directo desde una cámara específica. Se captura una imagen a través del protocolo RTSP, que luego es procesada con el modelo YOLOv11x para detectar los vehículos presentes. Finalmente, se muestra un recuento automático en pantalla con los datos obtenidos.",
         'camaras_disponibles': camera_labels,
         'camara': None,
         'datos_deteccion': None,

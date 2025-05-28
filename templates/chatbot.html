@@ -9,17 +9,20 @@
 {% block content %}
 <style>
     body {
-        background-color: #f8f9fa; /* Color de fondo Bootstrap ligero */
+        background-color: #f8f9fa;
+        /* Color de fondo Bootstrap ligero */
     }
-    
+
     .chat-card {
-        height: calc(100vh - 120px); /* Ajustar altura */
+        height: calc(100vh - 120px);
+        /* Ajustar altura */
         min-height: 400px;
-        max-height: 700px; /* Altura máxima */
+        max-height: 700px;
+        /* Altura máxima */
         display: flex;
         flex-direction: column;
     }
-    
+
     .chat-window {
         flex-grow: 1;
         overflow-y: auto;
@@ -28,7 +31,7 @@
         flex-direction: column;
         gap: 0.75rem;
     }
-    
+
     .message {
         padding: 0.6rem 1rem;
         border-radius: 1.1rem;
@@ -36,81 +39,136 @@
         word-wrap: break-word;
         line-height: 1.4;
     }
-    
+
+    #message-input {
+        padding: 12px 16px;
+        width: 80%;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        font-size: 14px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        transition: all 0.3s ease;
+        min-height: 48px;
+    }
+
     .user-message {
-        background-color: #0d6efd; /* Azul de Bootstrap */
+        background-color: #0d6efd;
+        /* Azul de Bootstrap */
         color: white;
         align-self: flex-end;
         border-bottom-right-radius: 0.25rem;
     }
-    
+
     .bot-message {
-        background-color: #e9ecef; /* Gris claro de Bootstrap */
+        background-color: #e9ecef;
+        /* Gris claro de Bootstrap */
         color: #212529;
         align-self: flex-start;
         border-bottom-left-radius: 0.25rem;
     }
-    
+
     .bot-message .sources {
         margin-top: 0.5rem;
         font-size: 0.8em;
         border-top: 1px solid #ced4da;
         padding-top: 0.5rem;
     }
-    .bot-message .sources p { margin: 0 0 0.25rem 0; font-weight: bold; }
-    .bot-message .sources ul { list-style-type: disc; padding-left: 1.25rem; margin: 0; }
-    .bot-message .sources li { margin-bottom: 0.15rem; }
-    .bot-message .sources a { color: #0056b3; }
-    
+
+    .bot-message .sources p {
+        margin: 0 0 0.25rem 0;
+        font-weight: bold;
+    }
+
+    .bot-message .sources ul {
+        list-style-type: disc;
+        padding-left: 1.25rem;
+        margin: 0;
+    }
+
+    .bot-message .sources li {
+        margin-bottom: 0.15rem;
+    }
+
+    .bot-message .sources a {
+        color: #0056b3;
+    }
+
     /* Estilos para la animación de "pensando" (simple) */
     .thinking-animation::after {
         content: '.';
         animation: dots 1s steps(5, end) infinite;
-        display: inline-block; /* Necesario para que la animación funcione bien en el flujo */
+        display: inline-block;
+        /* Necesario para que la animación funcione bien en el flujo */
     }
-    
+
     @keyframes dots {
-        0%, 20% { color: rgba(0,0,0,0); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0); }
-        40% { color: #6c757d; text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0); }
-        60% { text-shadow: .25em 0 0 #6c757d, .5em 0 0 rgba(0,0,0,0); }
-        80%, 100% { text-shadow: .25em 0 0 #6c757d, .5em 0 0 #6c757d; }
+
+        0%,
+        20% {
+            color: rgba(0, 0, 0, 0);
+            text-shadow: .25em 0 0 rgba(0, 0, 0, 0), .5em 0 0 rgba(0, 0, 0, 0);
+        }
+
+        40% {
+            color: #6c757d;
+            text-shadow: .25em 0 0 rgba(0, 0, 0, 0), .5em 0 0 rgba(0, 0, 0, 0);
+        }
+
+        60% {
+            text-shadow: .25em 0 0 #6c757d, .5em 0 0 rgba(0, 0, 0, 0);
+        }
+
+        80%,
+        100% {
+            text-shadow: .25em 0 0 #6c757d, .5em 0 0 #6c757d;
+        }
     }
-    
-    
+
+
     /* Contenedor de Razonamiento */
     #reasoningAccordion .accordion-item {
         background-color: #2c3e50;
         border: none;
     }
+
     #reasoningAccordion .accordion-button {
         background-color: #34495e;
         color: #ecf0f1;
     }
+
     #reasoningAccordion .accordion-button:not(.collapsed) {
         color: #1abc9c;
         background-color: #4a627a;
     }
-    #reasoningAccordion .accordion-button::after { /* Cambia el color del ícono del acordeón */
+
+    #reasoningAccordion .accordion-button::after {
+        /* Cambia el color del ícono del acordeón */
         filter: brightness(0) invert(1);
     }
-    
+
     #reasoning-output {
         font-family: 'Courier New', Courier, monospace;
         font-size: 0.9em;
         white-space: pre-wrap;
         word-wrap: break-word;
-        max-height: 400px; /* Aumentar altura */
+        max-height: 400px;
+        /* Aumentar altura */
         overflow-y: auto;
-        background-color: #22303f; /* Un poco más oscuro */
-        color: #bdc3c7; /* Texto más suave */
+        background-color: #22303f;
+        /* Un poco más oscuro */
+        color: #bdc3c7;
+        /* Texto más suave */
         padding: 15px;
         border-radius: 0 0 0.25rem 0.25rem;
     }
-    
-    .reasoning-hidden { /* Ocultar el acordeón entero */
+
+    .reasoning-hidden {
+        /* Ocultar el acordeón entero */
         display: none !important;
     }
 </style>
+
 <body>
     <div class="container mt-4">
         <div class="row justify-content-center">
@@ -125,21 +183,25 @@
                         </div>
                     </div>
                     <div class="card-footer">
-                        <div class="mb-2">
+                        <div class="mb-2" style="margin: 5px;">
                             <input type="checkbox" class="form-check-input" id="show-reasoning-checkbox">
-                            <label class="form-check-label" for="show-reasoning-checkbox">Mostrar Razonamiento del Modelo</label>
+                            <label class="form-check-label" for="show-reasoning-checkbox">Mostrar Razonamiento del
+                                Modelo</label>
                         </div>
                         <form id="chat-form">
                             <div class="input-group">
-                                <input type="text" id="message-input" class="form-control" placeholder="Escribe tu mensaje aquí..." autocomplete="off" autofocus>
-                                <button class="btn btn-primary" type="submit" id="send-button">
+                                <input type="text" id="message-input" class="form-control"
+                                    placeholder="Escribe tu mensaje aquí..." autocomplete="off" autofocus>
+                                <button class="btn btn-primary" type="submit" id="send-button"
+                                    style="margin-left: 5px;">
                                     Enviar
-                                    <span class="spinner-border spinner-border-sm ms-1 d-none" role="status" aria-hidden="true" id="send-spinner"></span>
+                                    <span class="spinner-border spinner-border-sm ms-1 d-none" role="status"
+                                        aria-hidden="true" id="send-spinner"></span>
                                 </button>
-                            </button>
-                            <button type="button" class="btn btn-danger" id="clear-chat-button" title="Borrar chat">
-                                Borrar chat
-                            </button>
+                                </button>
+                                <button type="button" class="btn btn-danger" id="clear-chat-button" title="Borrar chat">
+                                    Borrar chat
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -150,11 +212,13 @@
         <div class="accordion mt-3" id="reasoningAccordion">
             <div class="accordion-item reasoning-hidden" id="reasoning-accordion-item">
                 <h2 class="accordion-header" id="headingOne">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
                         Pasos de Razonamiento del Modelo
                     </button>
                 </h2>
-                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#reasoningAccordion">
+                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
+                    data-bs-parent="#reasoningAccordion">
                     <div class="accordion-body">
                         <pre id="reasoning-output"></pre>
                     </div>
@@ -167,11 +231,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
+
 </html>
 
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         const $chatWindow = $('#chat-window');
         const $chatForm = $('#chat-form');
         const $messageInput = $('#message-input');
@@ -180,13 +245,13 @@
         const $reasoningCheckbox = $('#show-reasoning-checkbox');
         const $reasoningAccordionItem = $('#reasoning-accordion-item');
         const $reasoningOutput = $('#reasoning-output');
-        $('#clear-chat-button').on('click', function() {
+        $('#clear-chat-button').on('click', function () {
             // Vacía el chat
             $chatWindow.empty();
             // Agrega el mensaje inicial del bot (saludo)
             addMessageToChatDOM('Hola 👋 ¿En qué puedo ayudarte hoy?', 'bot-message');
         });
-        $reasoningCheckbox.on('change', function() {
+        $reasoningCheckbox.on('change', function () {
             if ($(this).is(':checked')) {
                 $reasoningAccordionItem.removeClass('reasoning-hidden');
             } else {
@@ -194,61 +259,61 @@
                 $reasoningAccordionItem.addClass('reasoning-hidden');
             }
         });
-    
-        $chatForm.on('submit', async function(event) {
+
+        $chatForm.on('submit', async function (event) {
             event.preventDefault();
             const userMessageText = $messageInput.val().trim();
-    
+
             if (userMessageText === '') return;
-    
+
             addMessageToChatDOM(userMessageText, 'user-message', true);
             $messageInput.val('').focus();
             $sendButton.prop('disabled', true);
             $sendSpinner.removeClass('d-none');
-    
+
             if ($reasoningCheckbox.is(':checked')) {
                 $reasoningOutput.text('');
             }
-    
+
             let $currentBotMessageDiv = createBotMessageDiv();
             let $currentBotParagraph = $currentBotMessageDiv.find('p');
             $chatWindow.append($currentBotMessageDiv);
             $currentBotParagraph.addClass('thinking-animation').text('');
             $currentBotParagraph.data('markdownApplied', false);
-            let botResponseFullText = ""; 
-    
+            let botResponseFullText = "";
+
             try {
                 const response = await fetch('/api/chatbot', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ prompt: userMessageText }),
                 });
-    
+
                 $currentBotParagraph.removeClass('thinking-animation').text('');
-    
+
                 if (!response.ok) {
                     const errorText = await response.text();
                     $currentBotParagraph.text(`Error: ${response.status} - ${errorText || 'Error desconocido'}`);
                     $currentBotMessageDiv.addClass('bg-danger text-white');
                     return;
                 }
-                
+
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 let accumulatedJsonString = '';
                 let typingInProgress = false;
                 let textQueue = [];
                 $currentBotParagraph.data('streamCompleted', false);
-    
+
                 function queueProcessor() { // Renombrada y usada consistentemente
                     if (textQueue.length > 0 && !typingInProgress) {
                         typingInProgress = true;
                         let textToType = textQueue.shift();
                         botResponseFullText += textToType;
-                        
+
                         typeCharacterByCharacter(textToType, $currentBotParagraph, () => {
                             typingInProgress = false;
-                            queueProcessor(); 
+                            queueProcessor();
                             if (textQueue.length === 0 && !typingInProgress && $currentBotParagraph.data('streamCompleted')) {
                                 if (!$currentBotParagraph.data('markdownApplied')) {
                                     applyMarkdownToElement($currentBotParagraph, botResponseFullText);
@@ -263,10 +328,10 @@
                         }
                     }
                 }
-                
+
                 function typeCharacterByCharacter(textChunk, $pElement, callback) {
                     let i = 0;
-                    $pElement.data('typing', true); 
+                    $pElement.data('typing', true);
                     function type() {
                         if (i < textChunk.length) {
                             $pElement.append(document.createTextNode(textChunk.charAt(i)));
@@ -280,11 +345,11 @@
                     }
                     type();
                 }
-    
+
                 while (true) {
                     const { value, done } = await reader.read();
                     if (done) {
-                         if (accumulatedJsonString.trim()) {
+                        if (accumulatedJsonString.trim()) {
                             try {
                                 const finalJsonObject = JSON.parse(accumulatedJsonString);
                                 processStreamObject(finalJsonObject, $currentBotParagraph, $currentBotMessageDiv, textQueue, queueProcessor);
@@ -292,9 +357,9 @@
                         }
                         $currentBotParagraph.data('streamCompleted', true);
                         queueProcessor();
-                        break; 
+                        break;
                     }
-    
+
                     accumulatedJsonString += decoder.decode(value, { stream: true });
                     let newlineIndex;
                     while ((newlineIndex = accumulatedJsonString.indexOf('\n')) >= 0) {
@@ -320,7 +385,7 @@
                 $messageInput.focus();
             }
         });
-    
+
         function simpleMarkdownToHtml(mdText) {
             // console.log("[simpleMarkdownToHtml] Input:", JSON.stringify(mdText));
             let htmlText = mdText;
@@ -332,26 +397,26 @@
             // console.log("[simpleMarkdownToHtml] Output:", JSON.stringify(htmlText));
             return htmlText;
         }
-    
+
         function applyMarkdownToElement($element, fullText) {
             console.log("[applyMarkdownToElement] Texto completo a convertir:", JSON.stringify(fullText));
             const htmlForText = simpleMarkdownToHtml(fullText);
             $element.html(htmlForText);
             console.log("[applyMarkdownToElement] HTML aplicado:", JSON.stringify(htmlForText));
         }
-    
+
         function processStreamObject(streamObject, $botParagraphElement, $botMessageDivElement, textQueue, queueProcessor) {
             switch (streamObject.type) {
                 case 'token':
                     textQueue.push(streamObject.data);
-                    queueProcessor(); 
+                    queueProcessor();
                     break;
                 case 'rag_sources':
                     $botParagraphElement.data('streamCompleted', true);
-                    queueProcessor(); 
+                    queueProcessor();
                     function addSourcesWhenReady() {
                         if (textQueue.length === 0 && !$botParagraphElement.data('typing') && $botParagraphElement.data('markdownApplied')) {
-                             if (streamObject.data && streamObject.data.length > 0) {
+                            if (streamObject.data && streamObject.data.length > 0) {
                                 appendSourcesToMessage(streamObject.data, $botMessageDivElement);
                             }
                             $chatWindow.scrollTop($chatWindow[0].scrollHeight);
@@ -370,11 +435,11 @@
                         let contentToAppend = "";
                         if (streamObject.type === 'final_history' && Array.isArray(streamObject.data)) {
                             streamObject.data.forEach(msg => {
-                                let content = msg.content || (msg.tool_calls ? JSON.stringify(msg.tool_calls,null,2) : '(vacio)');
+                                let content = msg.content || (msg.tool_calls ? JSON.stringify(msg.tool_calls, null, 2) : '(vacio)');
                                 contentToAppend += `${msg.role}: ${content}\n`;
                             });
                             if (prefix) contentToAppend = prefix + contentToAppend + "-----------------------\n\n";
-                        } else { contentToAppend = prefix + JSON.stringify(streamObject.data, null, 2) + '\n\n';}
+                        } else { contentToAppend = prefix + JSON.stringify(streamObject.data, null, 2) + '\n\n'; }
                         $reasoningOutput.append(document.createTextNode(contentToAppend));
                         $reasoningOutput.scrollTop($reasoningOutput[0].scrollHeight);
                     }
@@ -382,7 +447,7 @@
                 case 'error':
                     $botParagraphElement.data('streamCompleted', true);
                     queueProcessor();
-                     function showErrorWhenReady() {
+                    function showErrorWhenReady() {
                         if (textQueue.length === 0 && !$botParagraphElement.data('typing') && $botParagraphElement.data('markdownApplied')) {
                             $botParagraphElement.append(document.createTextNode(`\nError Backend: ${streamObject.data}`));
                             $botMessageDivElement.addClass('bg-warning');
@@ -400,30 +465,30 @@
                     console.warn('Objeto stream desconocido:', streamObject);
             }
         }
-        
+
         function createBotMessageDiv() {
             const $messageDiv = $('<div>').addClass('message bot-message');
             const $p = $('<p>');
             $messageDiv.append($p);
             return $messageDiv;
         }
-    
+
         function addMessageToChatDOM(text, className, applyMd = false) {
             const $messageDiv = $('<div>').addClass('message').addClass(className);
             const $p = $('<p>');
             if (applyMd && className === 'user-message') { // Aplicar MD solo a mensajes de usuario si se desea y se especifica
-                 $p.html(simpleMarkdownToHtml(text));
+                $p.html(simpleMarkdownToHtml(text));
             } else if (className === 'user-message') {
-                 $p.text(text); // Mensajes de usuario normalmente como texto plano
+                $p.text(text); // Mensajes de usuario normalmente como texto plano
             } else { // Mensajes de bot se manejarán por el streamer
-                $p.text(text); 
+                $p.text(text);
             }
             $messageDiv.append($p);
             $chatWindow.append($messageDiv);
             $chatWindow.scrollTop($chatWindow[0].scrollHeight);
             return $messageDiv;
         }
-        
+
         function appendSourcesToMessage(sources, $messageDivElement) {
             if (!sources || sources.length === 0) return;
             let $sourcesContainer = $messageDivElement.find('.sources');
@@ -435,7 +500,7 @@
                 $messageDivElement.append($sourcesContainer);
             }
             const $ul = $sourcesContainer.find('ul');
-            $ul.empty(); 
+            $ul.empty();
             sources.forEach(source => {
                 const $li = $('<li>');
                 let sourceText = `Título: ${source.document_title || 'N/A'}`;
@@ -443,7 +508,7 @@
                     sourceText += ` (ID: ${source.elasticsearch_id}, Score: ${source.score ? source.score.toFixed(2) : 'N/A'}, Página: ${source.page_number || 'N/A'}, Chunk: ${source.chunk_id_from_doc || 'N/A'})`;
                 }
                 if (source.pdf_link) {
-                    const $a = $('<a>').attr({href: source.pdf_link, target: '_blank',rel: 'noopener noreferrer'}).text(sourceText);
+                    const $a = $('<a>').attr({ href: source.pdf_link, target: '_blank', rel: 'noopener noreferrer' }).text(sourceText);
                     $li.append($a);
                 } else { $li.text(sourceText); }
                 $ul.append($li);
