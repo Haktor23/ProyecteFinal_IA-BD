@@ -219,29 +219,72 @@ def get_air_quality_tool_impl(nombre_estacion: str, date_query: str) -> dict:
 
 
 # --- Tool: calidad del aire ---
-def get_air_quality_tool_impl(nombre_estacion: str) -> dict:
-    nombre_normalizado = normalize_text(nombre_estacion)
+def get_temperature_data_tool_impl(date_query: str, station_name: str) -> dict:
+    csv_path = "data/CSV/HistoricoTemperatura.csv"
+    today = datetime.utcnow().date()
+
+    if date_query.lower() == "ayer":
+        fecha_obj = today - timedelta(days=1)
+        source = "csv"
+    elif date_query.lower() == "hoy":
+        fecha_obj = today
+        source = "api"
+    else:
+        try:
+            fecha_obj = datetime.strptime(date_query, "%Y-%m-%d").date()
+            if fecha_obj >= today:
+                return {"error": "La fecha debe ser anterior a hoy. Use 'hoy' para datos actuales."}
+            source = "csv"
+        except ValueError:
+            return {"error": "Formato de fecha inválido. Use 'YYYY-MM-DD', 'ayer' o 'hoy'."}
+
+    if source == "api":
+        try:
+            response = requests.get("https://valencia.opendatasoft.com/api/explore/v2.1/catalog/datasets/estacions-atmosferiques-estaciones-atmosfericas/records?limit=20")
+            data_api = response.json().get("results", [])
+            matching = [e for e in data_api if station_name.lower() in e.get("nombre", "").lower()]
+            if not matching:
+                return {"error": f"No hay datos para estación '{station_name}' hoy."}
+            est = matching[-1]
+            geo = est.get("geo_point_2d", {})
+            return {
+                "fecha": str(fecha_obj),
+                "estacion": est["nombre"],
+                "datos": {
+                    "temperatur": est.get("temperatur"),
+                    "humedad_re": est.get("humedad_re"),
+                    "viento_vel": est.get("viento_vel"),
+                    "direccion": est.get("direccion"),
+                    "lat": geo.get("lat"),
+                    "lon": geo.get("lon"),
+                    "timestamp": est.get("fecha_carg"),
+                },
+                "descripcion": f"Datos actuales para '{est['nombre']}'"
+            }
+        except Exception as e:
+            return {"error": f"Error en API: {e}"}
+
     try:
-        resp = requests.get("https://valencia.opendatasoft.com/api/explore/v2.1/catalog/datasets/estacions-contaminacio-atmosferiques-estaciones-contaminacion-atmosfericas/records?limit=100")
-        estaciones = resp.json().get("results", [])
-        for est in estaciones:
-            if nombre_normalizado in normalize_text(est.get("nombre", "")):
-                return {
-                    "estacion": est["nombre"],
-                    "calidad": est.get("calidad_am", "Desconocida"),
-                    "fecha": est.get("fecha_carg"),
-                    "detalles": {
-                        "SO2": est.get("so2"),
-                        "NO2": est.get("no2"),
-                        "O3": est.get("o3"),
-                        "CO": est.get("co"),
-                        "PM10": est.get("pm10"),
-                        "PM2.5": est.get("pm25"),
-                    }
-                }
-        return {"error": f"No se encontró información para '{nombre_estacion}'"}
+        df = pd.read_csv(csv_path, sep=';')
+        df['fecha_carg_date'] = pd.to_datetime(df['fecha_carg']).dt.date
+        datos = df[(df['fecha_carg_date'] == fecha_obj) & df['nombre'].str.contains(station_name, case=False, na=False)]
+        if datos.empty:
+            return {"error": f"No hay datos para '{station_name}' en {fecha_obj}"}
+        registro = datos.iloc[-1]
+        return {
+            "fecha": str(fecha_obj),
+            "estacion": registro["nombre"],
+            "datos": {
+                k: (str(v) if isinstance(v, (datetime, date)) else v)
+                for k, v in registro.to_dict().items()
+            },
+
+            "descripcion": f"Datos históricos de '{registro['nombre']}' en {fecha_obj}"
+        }
     except Exception as e:
-        return {"error": f"Error al consultar calidad del aire: {e}"}
+        return {"error": f"Error CSV: {e}"}
+
+# --- Tool: calidad del aire ---
 
 # --- Tool: búsqueda en Elasticsearch (RAG) ---
 def query_elasticsearch_tool_impl(search_query: str):
