@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block page_title %}Panel de Control Principal{% endblock %}
+
+{% block page_description %}
+    Bienvenido al sistema inteligente de análisis con IA y Big Data. 
+    Explora las diferentes funcionalidades disponibles en las pestañas superiores.
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">{{ titulo if titulo else "Panel de Control Principal" }}</h1>
+    <p class="page-description">
+        {{ descripcion if descripcion else "Bienvenido al sistema inteligente de análisis con IA y Big Data. Explora las diferentes funcionalidades disponibles en las pestañas superiores." }}
+    </p>
+</div>
+ <form method="post">
+        <input type="text" name="query" value="{{ query }}" placeholder="Buscar..." required>
+        <button type="submit">Buscar</button>
+    </form>
+
+   
+{% if results %}
+<p><strong>Resultados encontrados:</strong> {{ results|length }}</p>
+
+    <h2>Resultados</h2>
+    <ul>
+        {% for hit in results %}
+            <li>
+                {% if hit._source.title %}
+                    <strong>Título:</strong> {{ hit._source.title }}<br>
+                {% endif %}
+
+                {% if hit._source.description %}
+                    <strong>Descripción:</strong> {{ hit._source.description }}<br>
+                {% endif %}
+
+                <strong>Documento:</strong> {{ hit._source.document_name }}<br>
+                <strong>Página:</strong> {{ hit._source.page_number }}<br>
+
+                {% if hit._source.content %}
+                    <details>
+                        <summary><strong>Contenido:</strong> Mostrar/ocultar</summary>
+                        <pre style="white-space: pre-wrap;">{{ hit._source.content[:500] }}{% if hit._source.content|length > 500 %}...{% endif %}</pre>
+                    </details>
+                {% endif %}
+
+                <hr>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No se encontraron resultados para la búsqueda realizada.</p>
+{% endif %}
+{% endblock %}

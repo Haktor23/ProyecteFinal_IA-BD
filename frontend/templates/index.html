@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}ProyecteFinal_IA-BD: Sistema Inteligente de Monitorización Urbana{% endblock %}
+
+{% block page_title %}Sistema Inteligente de Monitorización Urbana{% endblock %}
+
+{% block page_description %}
+    En el marco del **Proyecto Integrador** del Curso de Especialización en **Inteligencia Artificial y Big Data** del **IES Dr. Lluís Simarro Lacabra de Xàtiva**, hemos desarrollado una solución innovadora para la **planificación urbana y la gestión de la movilidad**. Este proyecto aborda el desafío crucial de la contaminación atmosférica en las ciudades, buscando mejorar la calidad de vida y optimizar la movilidad urbana a través de tecnologías de vanguardia.
+    <br><br>
+    Nuestro sistema aprovecha el potencial del **eGovern (gobierno electrónico)**, transformando digitalmente los procesos públicos para integrar capacidades de IA y Big Data. Esto nos permite anticipar comportamientos, generar alertas inteligentes y apoyar la toma de decisiones en tiempo real para una gestión urbana más eficiente y proactiva.
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">{{ titulo if titulo else "Panel de Control Principal" }}</h1>
+    <p class="page-description">
+        {{ descripcion if descripcion else "Bienvenido al sistema inteligente de análisis con IA y Big Data. Explora las diferentes funcionalidades disponibles en las pestañas superiores." }}
+    </p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+    <div class="card" style="text-align: center;">
+        <div style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+            <i class="fas fa-video" style="font-size: 2rem; color: white;"></i>
+        </div>
+        <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Cámaras Activas</h3>
+        <p style="font-size: 2rem; font-weight: 700; color: var(--primary-color); margin-bottom: 0.5rem;">{{ datos.camaras if datos and datos.camaras else "8" }}</p>
+        <p style="color: var(--text-muted); font-size: 0.875rem;">Sistemas de vigilancia operativos</p>
+        <a href="/camaras" class="btn" style="margin-top: 1rem;">
+            <i class="fas fa-eye"></i>
+            Ver Cámaras
+        </a>
+    </div>
+
+    <div class="card" style="text-align: center;">
+        <div style="background: linear-gradient(135deg, var(--accent-color), var(--secondary-color)); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+            <i class="fas fa-satellite-dish" style="font-size: 2rem; color: white;"></i>
+        </div>
+        <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Análisis en Tiempo Real</h3>
+        <p style="font-size: 2rem; font-weight: 700; color: var(--accent-color); margin-bottom: 0.5rem;">{{ datos.realtime if datos and datos.realtime else "24/7" }}</p>
+        <p style="color: var(--text-muted); font-size: 0.875rem;">Monitoreo continuo activo</p>
+        <a href="/realtime" class="btn" style="margin-top: 1rem; background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));">
+            <i class="fas fa-play"></i>
+            Tiempo Real
+        </a>
+    </div>
+
+    <div class="card" style="text-align: center;">
+        <div style="background: linear-gradient(135deg, var(--success-color), var(--accent-color)); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+            <i class="fas fa-brain" style="font-size: 2rem; color: white;"></i>
+        </div>
+        <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Modelos IA</h3>
+        <p style="font-size: 2rem; font-weight: 700; color: var(--success-color); margin-bottom: 0.5rem;">{{ datos.modelos if datos and datos.modelos else "5" }}</p>
+        <p style="color: var(--text-muted); font-size: 0.875rem;">Modelos entrenados disponibles</p>
+        <a href="/machinelearning" class="btn" style="margin-top: 1rem;">
+            <i class="fas fa-brain"></i>
+            Ver Modelos
+        </a>
+    </div>
+
+    <div class="card" style="text-align: center;">
+        <div style="background: linear-gradient(135deg, #4CAF50, #8BC34A); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+            <i class="fas fa-wind" style="font-size: 2rem; color: white;"></i>
+        </div>
+        <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Calidad del Aire</h3>
+        <p style="font-size: 2rem; font-weight: 700; color: #4CAF50; margin-bottom: 0.5rem;">{{ datos.calidad_aire_status if datos and datos.calidad_aire_status else "Buena" }}</p>
+        <p style="color: var(--text-muted); font-size: 0.875rem;">Estado actual o promedio</p>
+        <a href="{{ url_for('calidad_page') }}" class="btn" style="margin-top: 1rem; background: linear-gradient(135deg, #4CAF50, #8BC34A);">
+            <i class="fas fa-leaf"></i>
+            Ver Detalles
+        </a>
+    </div>
+
+    <div class="card" style="text-align: center;">
+        <div style="background: linear-gradient(135deg, #FF9800, #FFC107); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+            <i class="fas fa-thermometer-half" style="font-size: 2rem; color: white;"></i>
+        </div>
+        <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Temperatura Urbana</h3>
+        <p style="font-size: 2rem; font-weight: 700; color: #FF9800; margin-bottom: 0.5rem;">{{ datos.temperatura_avg if datos and datos.temperatura_avg else "40" }}°C</p>
+        <p style="color: var(--text-muted); font-size: 0.875rem;">Promedio o última lectura</p>
+        <a href="{{ url_for('temperaturas_page') }}" class="btn" style="margin-top: 1rem; background: linear-gradient(135deg, #FF9800, #FFC107);">
+            <i class="fas fa-chart-line"></i>
+            Ver Gráficos
+        </a>
+    </div>
+
+    <div class="card" style="text-align: center;">
+        <div style="background: linear-gradient(135deg, #673AB7, #9C27B0); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+            <i class="fas fa-comments" style="font-size: 2rem; color: white;"></i>
+        </div>
+        <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Asistente IA</h3>
+        <p style="font-size: 2rem; font-weight: 700; color: #673AB7; margin-bottom: 0.5rem;">{{ datos.chatbot_status if datos and datos.chatbot_status else "Activo" }}</p>
+        <p style="color: var(--text-muted); font-size: 0.875rem;">Chatbot con RAG</p>
+        <a href="{{ url_for('chatbot_page') }}" class="btn" style="margin-top: 1rem; background: linear-gradient(135deg, #673AB7, #9C27B0);">
+            <i class="fas fa-paper-plane"></i>
+            Iniciar Chat
+        </a>
+    </div>
+</div>
+
+<section id="about-project" class="features" style="margin-top: 3rem;">
+    <div class="container">
+        <h2>¿Qué hace nuestro sistema?</h2>
+        <div class="feature-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+            <div class="feature-item card" style="text-align: left; padding: 1.5rem;">
+                <h3>🌬️ Monitorización de la Calidad del Aire</h3>
+                <p>Explora datos históricos de contaminantes atmosféricos y visualiza tendencias para entender el impacto en nuestra salud y medio ambiente. Identifica patrones y zonas críticas.</p>
+                <a href="{{ url_for('calidad_page') }}" class="btn-secondary" style="margin-top: 1rem;">Ver Calidad del Aire</a>
+            </div>
+            <div class="feature-item card" style="text-align: left; padding: 1.5rem;">
+                <h3>📹 Gestión de Cámaras de Tráfico</h3>
+                <p>Accede a información relevante de cámaras de tráfico (simulada con datos históricos) para analizar flujos vehiculares y posibles incidentes. Contribuye a una gestión del tráfico más fluida.</p>
+                <a href="{{ url_for('camaras_page') }}" class="btn-secondary" style="margin-top: 1rem;">Ver Cámaras</a>
+            </div>
+            <div class="feature-item card" style="text-align: left; padding: 1.5rem;">
+                <h3>🌡️ Análisis de Temperatura</h3>
+                <p>Visualiza y analiza datos de temperatura a lo largo del tiempo para comprender su evolución y posibles correlaciones con otros fenómenos urbanos o el impacto del cambio climático.</p>
+                <a href="{{ url_for('temperaturas_page') }}" class="btn-secondary" style="margin-top: 1rem;">Ver Temperatura</a>
+            </div>
+            <div class="feature-item card" style="text-align: left; padding: 1.5rem;">
+                <h3>🧠 Machine Learning para Predicción</h3>
+                <p>Utilizamos modelos de IA entrenados con datasets proporcionados para anticipar escenarios futuros y detectar anomalías en los datos urbanos. Un componente clave para la toma de decisiones proactiva.</p>
+                <a href="{{ url_for('machinelearning_page') }}" class="btn-secondary" style="margin-top: 1rem;">Explorar ML</a>
+            </div>
+            <div class="feature-item card" style="text-align: left; padding: 1.5rem;">
+                <h3>💬 Chatbot Inteligente (RAG)</h3>
+                <p>Nuestro asistente conversacional, potenciado por **Retrieval-Augmented Generation (RAG)**, te permite realizar preguntas sobre los datos y la funcionalidad del sistema. Obtén respuestas contextualizadas y precisas al instante.</p>
+                <a href="{{ url_for('chatbot_page') }}" class="btn-secondary" style="margin-top: 1rem;">Hablar con el Chatbot</a>
+            </div>
+            <div class="feature-item card" style="text-align: left; padding: 1.5rem;">
+                <h3>⏱️ Datos en Tiempo Real (Simulado)</h3>
+                <p>Experimenta la interfaz de datos en tiempo real, donde se simula la actualización de información crucial para la monitorización instantánea y la capacidad de respuesta ante eventos inesperados.</p>
+                <a href="{{ url_for('realtime_page') }}" class="btn-secondary" style="margin-top: 1rem;">Ver Tiempo Real</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="call-to-action" style="margin-top: 3rem; text-align: center;">
+    <div class="container">
+        <h2>Un paso hacia las Smart Cities</h2>
+        <p>Este proyecto demuestra cómo la combinación de IA y Big Data puede transformar la gestión urbana, creando entornos más inteligentes, sostenibles y habitables. Te invitamos a explorar cada sección y ver el potencial de estas tecnologías en acción.</p>
+        <a href="https://github.com/haktor23/proyectefinal_ia-bd" target="_blank" class="btn-primary" style="margin-top: 1.5rem;">Visita nuestro GitHub</a>
+    </div>
+</section>
+{% endblock %}

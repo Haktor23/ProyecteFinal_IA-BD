@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title %}Galería de Cámaras{% endblock %}
+
+
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">{{ titulo }}</h1>
+    <p class="page-description">{{ descripcion }}</p>
+</div>
+<style>
+
+  .form-select {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transition: all 0.3s ease;
+    min-height: 48px;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.form-select option {
+    background: #2c3e50;
+    color: white;
+}
+.gallery-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; /* smooth scrolling en iOS */
+  gap: 1rem;
+  padding-bottom: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
+}
+
+.gallery-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.gallery-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.gallery-container::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 4px;
+}
+
+.gallery-item {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  width: 220px;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  background: #fff;
+  position: relative;
+    margin: 10px;
+}
+
+.gallery-item img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  user-select: none;
+}
+
+.gallery-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+/* Estilos para los selects personalizados */
+.select-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.select-wrapper {
+  position: relative;
+  display: inline-block;
+  min-width: 250px;
+}
+
+.select-label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+  font-size: 14px;
+  letter-spacing: 0.025em;
+}
+
+.custom-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 45px 12px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #374151;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.custom-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+}
+
+.custom-select:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.custom-select:focus + .select-wrapper::after,
+.select-wrapper:focus-within::after {
+  border-top-color: #3b82f6;
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.filters-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 30px;
+  align-items: end;
+}
+
+/* Opcional: ocultar scrollbar en dispositivos táctiles */
+@media (pointer: coarse) {
+  .gallery-container {
+    scrollbar-width: none;
+  }
+  .gallery-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .gallery-item div {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px;
+  }
+}
+
+@media (max-width: 768px) {
+  .filters-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .select-wrapper {
+    min-width: 100%;
+  }
+}
+</style>
+<form method="get" action="{{ url_for('camaras_page') }}" class="form-inline mb-4">
+    <button id="btnProcesar" class="btn btn-primary">Actualizar Datos</button>
+<span id="loader" style="display:none; margin-left:10px;">
+    <img src="https://i.gifer.com/ZZ5H.gif" alt="Cargando..." width="30" />
+    <span>Esto puede durar unos minutos...</span>
+</span>
+<br><br>
+
+<div class="filters-container">
+    <div class="select-group">
+        <label for="camara" class="select-label" style="color:white;">Cámara:</label>
+        <div class="select-wrapper">
+            <select name="camara" id="camara" class="form-select">
+                <option value="">-- Selecciona una cámara --</option>
+                {% for c in camaras %}
+                <option value="{{ c }}" {% if c==camara_seleccionada %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="select-group">
+        <label for="fecha" class="select-label" style="color:white;">Fecha:</label>
+        <div class="select-wrapper">
+            <select name="fecha" id="fecha" class="form-select">
+                <option value="">-- Selecciona una fecha --</option>
+                {% for f in fechas %}
+                {% set fecha_str = f | string %}
+                <option value="{{ f }}" {% if f==fecha_seleccionada %}selected{% endif %}>
+                    {{ fecha_str[6:8] }}-{{ fecha_str[4:6] }}-{{ fecha_str[:4] }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="select-group">
+        <label class="select-label" style="visibility: hidden;">Filtrar</label>
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+    </div>
+</div>
+
+</form>
+
+{% if imagenes %}
+<div class="gallery-container" tabindex="0" aria-label="Galería de imágenes">
+    {% for url in imagenes %}
+    <div class="gallery-item" style="position: relative;">
+        <img src="{{ url }}" alt="Imagen de cámara" loading="lazy" />
+        {# Extraemos la parte del tiempo del nombre del archivo #}
+        {% set path_part = url.split('?')[0] %}  <!-- Quitamos parámetros de la URL -->
+        {% set filename = path_part.split('/')[-1] %}  <!-- Obtenemos el nombre del archivo -->
+        {% set parts = filename.split('_') %}  <!-- Separamos por guiones bajos -->
+        {% set time_code = parts[-1].split('.')[0] %}  <!-- Obtenemos el código de tiempo -->
+        
+        <div style="position: absolute; 
+                   bottom: 10px; 
+                   left: 50%; 
+                   transform: translateX(-50%);
+                   color: white; 
+                   font-size: 0.9em;
+                   text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">
+            {{ time_code[0:2] }}:{{ time_code[2:4] }}:{{ time_code[4:6] }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>No se encontraron imágenes para los filtros seleccionados.</p>
+{% endif %}
+
+<script>
+// Redirigir al seleccionar una cámara para actualizar fechas
+document.getElementById('camara').addEventListener('change', function () {
+    const camara = this.value;
+    const url = new URL(window.location.href);
+    url.searchParams.set('camara', camara);
+    url.searchParams.delete('fecha'); // borra la fecha para forzar recálculo
+    window.location.href = url.toString();
+});
+</script>
+<script>
+document.getElementById('btnProcesar').addEventListener('click', function() {
+    const btn = this;
+    const loader = document.getElementById('loader');
+    btn.disabled = true;
+    loader.style.display = 'inline-flex';
+
+    fetch('{{ url_for("procesar_datos_route") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data.mensaje);
+        // Esperamos un tiempo prudente para que el proceso termine (puedes ajustar)
+        setTimeout(() => {
+            location.reload();
+        }, 3000);  // por ejemplo 3 segundos, ajusta o usa WebSocket para saber cuando termina
+    })
+    .catch(error => {
+        alert('Error al iniciar el proceso');
+        btn.disabled = false;
+        loader.style.display = 'none';
+    });
+});
+</script>
+
+{% endblock %}
