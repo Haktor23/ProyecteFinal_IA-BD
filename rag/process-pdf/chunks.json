@@ -1,0 +1,212 @@
+[
+    {
+        "text": "PROYECTO INTEGRAL: Planificación urbana y gestión de la movilidad CURSO DE ESPECIALIZACIÓN EN INTELIGENCIA ARTIFICIAL Y BIG DATA CURSO 2024-2025 Los organismos públicos están apostando por introducir el eGovern (gobierno electrónico) en sus procesos de planificación urbana y gestión de la movilidad. El eGovern hace referencia a la transformación digital de los procesos de negocio de los gobiernos, es decir, el uso de soluciones software como soporte a la ejecución de las actividades y servicios que desempeñan los organismos públicos. Estas soluciones pueden resultar aún más efectivas al integrar tecnologías de Inteligencia Artificial y Big Data, que permiten anticipar comportamientos, generar alertas inteligentes y apoyar la toma de decisiones en tiempo real. La contaminación atmosférica en las ciudades representa un desafío clave para la salud pública y la sostenibilidad.",
+        "pdf_filename": "SIMARRO_2024_2025_Proyecto integrador - Análisis y control de la contaminación ambiental para la gestión del tráfico y la movilidad urbana (1).pdf",
+        "page_numbers": [
+            1,
+            2,
+            3
+        ],
+        "metadata": {
+            "char_count": 885,
+            "source_window_index": 0
+        },
+        "id": "f5284c75-b079-4f5c-a00f-ee6b61a77098"
+    },
+    {
+        "text": "La solución permitirá realizar análisis de los datos almacenados en el sistema a demanda del usuario, pero también incluirá una sección de avisos que se lanzarán en tiempo real ante situaciones en las que los niveles de contaminación reales difieran significativamente de los previstos. Estos avisos proporcionarán al usuario información útil para aplicar restricciones al tráfico, activar medidas de mitigación o lanzar campañas informativas. d) La solución software incluirá además funcionalidad de apoyo a la toma de decisiones estratégicas mediante un entorno de simulación en el que se podrán lanzar predicciones para diferentes escenarios de contaminación atmosférica según los parámetros definidos por el usuario. 2.",
+        "pdf_filename": "SIMARRO_2024_2025_Proyecto integrador - Análisis y control de la contaminación ambiental para la gestión del tráfico y la movilidad urbana (1).pdf",
+        "page_numbers": [
+            1,
+            2,
+            3
+        ],
+        "metadata": {
+            "char_count": 723,
+            "source_window_index": 0
+        },
+        "id": "6ec5e0b5-dd8f-4787-813c-c00f49812841"
+    },
+    {
+        "text": "solución incluirá un chatbot que permitirá consultar los procedimientos de acreditación y unidades competenciales del dominio medioambiental, contaminación, gestión del tráfico y movilidad urbana. Mejoras o adaptaciones opcionales: • Activar zonas de bajas emisiones de manera automatizada ante episodios de alta contaminación sin intervención del gestor del servicio. • Desarrollar funcionalidades que permitan al usuario final (gestor de movilidad) lanzar medidas correctoras de forma proactiva, no solo reactiva, para prevenir que se llegue a situaciones de alta contaminación. • Desarrollar interfaces visuales que se puedan integrar en paneles informativos urbanos, rotativos de televisión, o aplicaciones de movilidad. • Incorporar una capa de interoperabilidad para que los datos consolidados sobre emisiones y episodios de contaminación puedan ser utilizados para estudios de planificación urbana y sostenibilidad o en un contexto de entrenamiento federado o cualquier otro uso del ámbito de los espacios de datos.",
+        "pdf_filename": "SIMARRO_2024_2025_Proyecto integrador - Análisis y control de la contaminación ambiental para la gestión del tráfico y la movilidad urbana (1).pdf",
+        "page_numbers": [
+            1,
+            2,
+            3
+        ],
+        "metadata": {
+            "char_count": 1022,
+            "source_window_index": 0
+        },
+        "id": "35eb5a56-9432-4799-b1ac-e9b0ef416944"
+    },
+    {
+        "text": "Objetivo: Automatizar la recolección, consolidación y almacenamiento de datos sobre calidad del aire de la ciudad de Valencia desde una fuente pública (el-tiempo.net, utilizada aquí únicamente como ejemplo meteorológico), generando datos preparados para análisis horario. Componentes principales: 1. InvokeHTTP o Descripción: Realiza peticiones GET al endpoint de la API cada 5 minutos. o URL: https://www.el- tiempo.net/api/json/v2/provincias/46/municipios/46250 2. MergeContent o Descripción: Agrupa 12 muestras (1 hora) de datos sobre calidad del aire para su análisis conjunto. 3. JoltTransformJSON o Descripción: Transforma el JSON para homogeneizar los datos y añadir campos como fechaLectura. o Transformación usada: { \"operation\": \"default\", \"spec\": { \"fechaLectura\": \"${now():toNumber()}\" } } 4. PutMongo / PutSQL o Descripción: Almacena los datos procesados en bases de datos para su explotación posterior.",
+        "pdf_filename": "SIMARRO_2024_2025_Proyecto integrador - Análisis y control de la contaminación ambiental para la gestión del tráfico y la movilidad urbana (1).pdf",
+        "page_numbers": [
+            3,
+            4,
+            5
+        ],
+        "metadata": {
+            "char_count": 916,
+            "source_window_index": 1
+        },
+        "id": "7cc1619a-2dc8-48e2-a822-29738e47362d"
+    },
+    {
+        "text": "[ { $set: { fechaLectura: { $toDate: \"$fechaLectura\" } } } ] ) Como se pretende desarrollar una solución local, se pondrá a tu disposición una fuente de datos que simule la original. La fuente local incluirá un simulador con datos históricos que se comportará como si fueran datos en tiempo real. Se proporcionarán endpoints equivalentes a los originales que se propongan con latencia configurable para poder acelerar o reducir la frecuencia con la que se generan nuevos datos. Este flujo sirve como punto de partida para diseñar un sistema de ingesta similar para datos ambientales. En este proyecto, debes crear tu propio flujo que recoja, procese y almacene datos de calidad del aire procedentes de fuentes públicas. Se espera que identifiques el endpoint del que se recogen los datos, las variables procesadas, los campos transformados y los nombres de las bases de datos según el contexto de contaminación ambiental. 3.2.",
+        "pdf_filename": "SIMARRO_2024_2025_Proyecto integrador - Análisis y control de la contaminación ambiental para la gestión del tráfico y la movilidad urbana (1).pdf",
+        "page_numbers": [
+            3,
+            4,
+            5
+        ],
+        "metadata": {
+            "char_count": 926,
+            "source_window_index": 1
+        },
+        "id": "446e6a49-668b-4009-843d-5a285d599669"
+    },
+    {
+        "text": "de un sistema de ingesta como el descrito en el apartado anterior, procesarlos y extraer variables clave (por ejemplo, intensidad de lluvia prevista y duración del episodio), que se utilizan como entrada de un clasificador supervisado. El modelo, que puede implementarse utilizando algoritmos como Random Forest o Regresión Logística, devuelve como salida un nivel de alerta asociado a cada zona y franja horaria: - Nivel 0: limpieza rutinaria - Nivel 1: limpieza reducida o solo en zonas prioritarias - Nivel 2: postergación de tareas por lluvia intensa - Nivel 3: cancelación total de las actividades Este modelo se despliega como servicio, recibe los datos del sistema de predicción meteorológica, y devuelve predicciones que pueden consultarse desde el sistema central o integrarse en el dashboard del gestor.",
+        "pdf_filename": "SIMARRO_2024_2025_Proyecto integrador - Análisis y control de la contaminación ambiental para la gestión del tráfico y la movilidad urbana (1).pdf",
+        "page_numbers": [
+            3,
+            4,
+            5
+        ],
+        "metadata": {
+            "char_count": 813,
+            "source_window_index": 1
+        },
+        "id": "3a08c176-8091-4def-ab45-be20ab454bfe"
+    },
+    {
+        "text": "3.3. Ejemplo de modelo diagnóstico a partir de imágenes Como complemento al modelo basado en datos meteorológicos, se puede implementar un segundo modelo orientado al análisis de imágenes urbanas captadas por cámaras públicas distribuidas en distintos puntos de la ciudad. En el contexto del servicio de limpieza urbana, este modelo de diagnóstico por visión artificial tiene como objetivo detectar situaciones que podrían no haber sido previstas por el modelo numérico: encharcamientos, acumulación de residuos, baja visibilidad, etc. El modelo se entrena utilizando técnicas de clasificación de imágenes, como redes convolucionales (CNN), y categorías etiquetadas previamente (por ejemplo: “normal”, “charcos”, “acumulación de hojas”, “poca visibilidad”). El sistema recibe imágenes en tiempo real desde las cámaras, las procesa en un pipeline que incluye redimensionado, normalización y clasificación, y devuelve una predicción con un nivel de confianza.",
+        "pdf_filename": "SIMARRO_2024_2025_Proyecto integrador - Análisis y control de la contaminación ambiental para la gestión del tráfico y la movilidad urbana (1).pdf",
+        "page_numbers": [
+            5,
+            6,
+            7
+        ],
+        "metadata": {
+            "char_count": 957,
+            "source_window_index": 2
+        },
+        "id": "cbb8a7b9-7b49-4790-966a-0497c8cf609e"
+    },
+    {
+        "text": "entorno de simulación que permita explorar diferentes escenarios meteorológicos y su impacto sobre el servicio de limpieza urbana. Este entorno consiste en una interfaz web que permite al usuario introducir manualmente parámetros como volumen de lluvia previsto, intensidad del viento o frecuencia de los episodios. A partir de estos valores, el sistema utiliza los modelos entrenados anteriormente (por ejemplo, el clasificador de niveles de alerta) para predecir qué zonas se verán más afectadas, qué recursos serán necesarios, y en qué momentos es más probable que deban modificarse las rutas o suspenderse tareas. La simulación se ejecuta en tiempo real y presenta los resultados mediante visualizaciones gráficas (mapas de calor, cronogramas, gráficas de cargas de trabajo) para facilitar el análisis. El entorno también permite guardar y comparar distintos escenarios, lo que resulta útil para justificar decisiones o evaluar estrategias alternativas.",
+        "pdf_filename": "SIMARRO_2024_2025_Proyecto integrador - Análisis y control de la contaminación ambiental para la gestión del tráfico y la movilidad urbana (1).pdf",
+        "page_numbers": [
+            5,
+            6,
+            7
+        ],
+        "metadata": {
+            "char_count": 957,
+            "source_window_index": 2
+        },
+        "id": "8cecfa07-f938-4bec-a13b-ba0f19cbd032"
+    },
+    {
+        "text": "e trabajo) para facilitar el análisis. El entorno también permite guardar y comparar distintos escenarios, lo que resulta útil para justificar decisiones o evaluar estrategias alternativas. Este entorno de simulación es un ejemplo extrapolado del contexto de meteorología y limpieza, pero su estructura puede adaptarse fácilmente para construir un entorno de simulación orientado a contaminación ambiental y planificación del tráfico. 3.5. Ejemplo de RAG para consulta de información relativa a acreditaciones En algunos servicios municipales, especialmente aquellos sometidos a auditoría o control externo, es necesario acceder a información regulada sobre acreditaciones, certificaciones y normativas aplicables a su ámbito de actuación. Un ejemplo sería el uso de un sistema de búsqueda basado en Recuperación Aumentada con Generación (RAG) que permita consultar, mediante lenguaje natural, documentos relacionados con procedimientos de acreditación y unidades competenciales en el ámbito meteorológico.",
+        "pdf_filename": "SIMARRO_2024_2025_Proyecto integrador - Análisis y control de la contaminación ambiental para la gestión del tráfico y la movilidad urbana (1).pdf",
+        "page_numbers": [
+            5,
+            6,
+            7
+        ],
+        "metadata": {
+            "char_count": 1006,
+            "source_window_index": 2
+        },
+        "id": "27efe884-9ff9-45c2-b132-c31dd914a15a"
+    },
+    {
+        "text": "Ne y competencias vinculadas a la gestión de la contaminación y la movilidad urbana. Se pondrá a tu disposición modelos LLM locales como Llama2 o Mistral 7B desplegados en servidores del centro que podrán ser consumidos a través de un api de servicios (API Rest) para que no tengas que lanzar los modelos en las máquinas de desarrollo, lo que implica utilizar modelos LLM más básicos o, en cualquier caso, reducir drásticamente los recursos hardware que no están dedicados al LLM. También se proporcionará un motor Elasticsearch en el que se podrán almacenar y recuperar los documentos. Este componente les permitirá experimentar con uno de los paradigmas emergentes en IA aplicada a documentos: la combinación de búsqueda semántica con generación contextualizada. 3.6.",
+        "pdf_filename": "SIMARRO_2024_2025_Proyecto integrador - Análisis y control de la contaminación ambiental para la gestión del tráfico y la movilidad urbana (1).pdf",
+        "page_numbers": [
+            5,
+            6,
+            7
+        ],
+        "metadata": {
+            "char_count": 770,
+            "source_window_index": 2
+        },
+        "original_text_if_refined": "nes y competencias vinculadas a la gestión de la contaminación y la movilidad urbana. Se pondrá a tu disposición modelos LLM locales como Llama2 o Mistral 7B desplegados en servidores del centro que podrán ser consumidos a través de un api de servicios (API Rest) para que no tengas que lanzar los modelos en las máquinas de desarrollo, lo que implica utilizar modelos LLM más básicos o, en cualquier caso, reducir drásticamente los recursos hardware que no están dedicados al LLM. También se proporcionará un motor Elasticsearch en el que se podrán almacenar y recuperar los documentos. Este componente les permitirá experimentar con uno de los paradigmas emergentes en IA aplicada a documentos: la combinación de búsqueda semántica con generación contextualizada. 3.6.",
+        "id": "fa7c4648-9b7d-4571-8768-0cd240a012c0"
+    },
+    {
+        "text": "a aplicar restricciones, modificar la planificación del tráfico o activar campañas informativas.",
+        "pdf_filename": "SIMARRO_2024_2025_Proyecto integrador - Análisis y control de la contaminación ambiental para la gestión del tráfico y la movilidad urbana (1).pdf",
+        "page_numbers": [
+            7,
+            8,
+            9
+        ],
+        "metadata": {
+            "char_count": 96,
+            "source_window_index": 3
+        },
+        "id": "5017688e-aff0-4db0-adec-3deec7d04894"
+    },
+    {
+        "text": "Niveles con signos visibles de polución, se deberá lanzar un aviso para actualizar los niveles de alerta y modificar las acciones programadas. Por último, la solución debe incluir un buscador de tipo RAG para responder a preguntas relacionadas con el escenario de aplicación seleccionado. Este proyecto integrador tiene un peso importante en tu evaluación. Aquí demostrarás que no solo has adquirido los conocimientos de cada módulo, sino que sabes combinarlos en una solución completa que aprovecha las ventajas de cada una de las tecnologías y herramientas presentadas, aplicadas ahora al dominio de la calidad del aire y la movilidad urbana. Deberás grabar un video de 12 minutos en el que se detalla la solución desarrollada. El contenido del video debe estar dividido en tres secciones claramente diferenciadas, por si se tuviera que recortar dependiendo de la situación.",
+        "pdf_filename": "SIMARRO_2024_2025_Proyecto integrador - Análisis y control de la contaminación ambiental para la gestión del tráfico y la movilidad urbana (1).pdf",
+        "page_numbers": [
+            7,
+            8,
+            9
+        ],
+        "metadata": {
+            "char_count": 982,
+            "source_window_index": 3
+        },
+        "original_text_if_refined": "nes con signos visibles de polución, se deberá lanzar un aviso para actualizar los niveles de alerta y modificar las acciones programadas. Por último, la solución debe incluir un buscador tipo RAG para responder a preguntas relacionadas con el escenario de aplicación seleccionado. Será una interfaz de usuario tipo chatbot como la que se ha desarrollado en prácticas anteriores. 5. Evaluación Este proyecto integrador tiene un peso importante en tu evaluación. Aquí demostrarás que no solo has adquirido los conocimientos de cada módulo, sino que sabes combinarlos en una solución completa que aprovecha las ventajas de cada una de las tecnologías y herramientas presentadas, aplicadas ahora al dominio de la calidad del aire y la movilidad urbana. Deberás grabar un video de 12 minutos en el que se describa la solución desarrollada. El contenido del video debe estar dividido en tres secciones claramente diferenciadas, por si se tuviera que recortar dependiendo de la situación.",
+        "id": "53d03a85-a590-4670-b533-9ff01a396327"
+    },
+    {
+        "text": "video de 12 minutos en el que se describa la solución desarrollada. El contenido del video debe estar dividido en tres secciones claramente diferenciadas, por si se tuviera que recortar dependiendo de la situación. En el primer bloque, de 3 minutos, se presentará el problema a resolver, la solución desarrollada, y por qué la inteligencia artificial y el big data permiten mejorar la gestión de la contaminación ambiental y la movilidad urbana, frente a una aproximación de ingeniería del software tradicional. En el segundo bloque, 6 minutos, se describirá a nivel técnico la solución. Se deben especificar los flujos de ingesta de datos, los algoritmos que se han utilizado para el desarrollo de los modelos, el modelo semántico de Power BI o cualquier otro artefacto de la solución. En el tercer bloque, 3 minutos, describe cómo ha sido tu proceso de desarrollo. Qué dificultades o problemas han ocurrido. Cómo se han resuelto.",
+        "pdf_filename": "SIMARRO_2024_2025_Proyecto integrador - Análisis y control de la contaminación ambiental para la gestión del tráfico y la movilidad urbana (1).pdf",
+        "page_numbers": [
+            7,
+            8,
+            9
+        ],
+        "metadata": {
+            "char_count": 931,
+            "source_window_index": 3
+        },
+        "id": "4312a157-71ab-43bd-96c6-62cc3640ad8d"
+    },
+    {
+        "text": "integrantes deberán participar activamente en todas las tareas del proyecto y ser capaces de defender cualquier parte de la solución durante la presentación. Durante la exposición se podrá hacer una breve ronda de preguntas para verificar la comprensión global del proyecto por parte de cada alumno. 5.1. Resumen de entregables: • Proceso de ingesta funcional con fuente local. • Modelos IA entrenados con dataset proporcionado. • Aplicación front-end con dashboard, alertas y chatbot. • Vídeo de presentación (12 minutos). 5.2. Rúbrica: Tu proyecto se evaluará según los siguientes criterios: CRITERIO PORCENTAJE Integración técnica completa de los componentes 30% Aplicación de IA/Big Data y justificación técnica 25% Calidad del cuadro de mandos y funcionalidad de alertas 20% Creatividad, iniciativa y escalabilidad del sistema 15% Claridad del vídeo y reflexión final 10% También se valorarán: • Calidad del código (claridad, organización, buenas prácticas).",
+        "pdf_filename": "SIMARRO_2024_2025_Proyecto integrador - Análisis y control de la contaminación ambiental para la gestión del tráfico y la movilidad urbana (1).pdf",
+        "page_numbers": [
+            9,
+            10,
+            11
+        ],
+        "metadata": {
+            "char_count": 963,
+            "source_window_index": 4
+        },
+        "id": "02dba266-44f7-4758-ad45-4ec911a3f687"
+    },
+    {
+        "text": "Aprovecha esta oportunidad para demostrar todo lo que sabes y desarrollar una solución con impacto real. Puede que se convierta en el primer proyecto real de tu nueva carrera profesional.",
+        "pdf_filename": "SIMARRO_2024_2025_Proyecto integrador - Análisis y control de la contaminación ambiental para la gestión del tráfico y la movilidad urbana (1).pdf",
+        "page_numbers": [
+            11
+        ],
+        "metadata": {
+            "char_count": 187,
+            "source_window_index": 5
+        },
+        "id": "2e33a38b-c48d-40b2-ab48-af77868555d1"
+    }
+]
