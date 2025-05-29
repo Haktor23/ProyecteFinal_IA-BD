@@ -1,6 +1,17 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 import threading
 import os
+import sys
+import json
+from datetime import datetime, timedelta
+import pandas as pd
+# Agregar la carpeta ML al path para importar
+ml_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'ML'))
+sys.path.append(ml_path)
+from predictor import generar_predicciones_3_dias, df_global
+from predictor_ozono import predecir_ozono
+
+
 
 # Importar módulos de utils
 from utils import index
@@ -248,6 +259,236 @@ def api_datos_temperatura():
 
         return jsonify({'error': str(e), 'data': [], 'recordsFiltered': 0, 'recordsTotal': 0, 'draw': draw_val}), 500
 
+
+@app.route('/api/ozono', methods=['POST'])
+def ml_ozono():
+    """
+    Endpoint para generar predicciones de O3 
+    
+    Esperado en el body JSON:
+    {
+    'co': 0.15,
+    'so2': 4.1,
+    'pm10': 35,
+    'pm25': 20,
+   
+    }
+    """
+    try:
+        # Verificar que el módulo de ML esté disponible
+        if predecir_ozono is None:
+            return jsonify({
+                'error': 'Módulo de predicción de ozono no disponible',
+                'message': 'No se pudo cargar el sistema de predicciones'
+            }), 500
+
+        # Obtener datos del request
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'error': 'Datos requeridos',
+                'message': 'Debe enviar un JSON con co,so2,pm10,pm25'
+            }), 400
+
+        co = data.get('co')
+        so2 = data.get('so2')
+        pm10 = data.get('pm10')
+        pm25 = data.get('pm25')
+
+        if co is None or so2 is None or pm10 is None or pm25 is None:
+        # Identificar qué parámetro falta (opcional, para un mensaje más específico)
+            missing_params = []
+            if co is None:
+                missing_params.append('co')
+            if so2 is None:
+                missing_params.append('so2')
+            if pm10 is None:
+                missing_params.append('pm10')
+            if pm25 is None:
+                missing_params.append('pm25')
+
+            error_message = f"Los siguientes parámetros son requeridos y no fueron proporcionados: {', '.join(missing_params)}."
+            
+            return jsonify({
+                'error': 'datos_incompletos',
+                'message': error_message
+            }), 400
+        
+       
+        valores_entrada = {
+    'co': co,
+    'so2': so2,
+    'pm10': pm10,
+    'pm25': pm25,
+   
+}
+        # Llamada a tu función, que ahora devuelve un float de Python
+        valor_predicho = predecir_ozono(valores_entrada)
+
+        # jsonify ahora recibe un float estándar y no debería dar error
+        return jsonify({"prediccion_ozono": valor_predicho})
+
+    except FileNotFoundError as e: # Ejemplo de manejo de error específico
+        app.logger.error(f"Error de modelo no encontrado: {e}")
+        return jsonify({"error": str(e)}), 500
+    except ValueError as e: # Ejemplo de manejo de error específico
+        app.logger.error(f"Error de valor durante la predicción: {e}")
+        return jsonify({"error": f"Error en los datos de entrada o configuración del modelo: {str(e)}"}), 400
+    except Exception as e:
+        app.logger.error(f"Error inesperado en /api/ozono: {e}", exc_info=True) # exc_info=True para loggear el traceback
+        return jsonify({"error": "Ocurrió un error interno en el servidor."}), 500
+
+
+
+@app.route('/api/prevision_temporal', methods=['POST'])
+def prevision_temporal():
+    """
+    Endpoint para generar predicciones de O3 para los próximos 3 días
+    
+    Esperado en el body JSON:
+    {
+        "object_id": 12,
+        "fecha_inicio": "2025-04-25 00:00:00" (opcional)
+    }
+    """
+    try:
+        # Verificar que el módulo de ML esté disponible
+        if generar_predicciones_3_dias is None or df_global is None:
+            return jsonify({
+                'error': 'Módulo de predicción no disponible',
+                'message': 'No se pudo cargar el sistema de predicciones'
+            }), 500
+
+        # Obtener datos del request
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'error': 'Datos requeridos',
+                'message': 'Debe enviar un JSON con object_id'
+            }), 400
+
+        object_id = data.get('object_id')
+        fecha_inicio = data.get('fecha_inicio')
+
+        if object_id is None:
+            return jsonify({
+                'error': 'object_id requerido',
+                'message': 'Debe especificar el object_id para la predicción'
+            }), 400
+
+        # Si no se proporciona fecha_inicio, usar la última fecha disponible + 1 hora
+        if not fecha_inicio:
+            try:
+                ultima_fecha = df_global[df_global['objectId'] == object_id]['Fecha'].max()
+                if pd.isna(ultima_fecha):
+                    # Si no hay datos para ese object_id, usar fecha actual
+                    fecha_inicio = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                else:
+                    fecha_inicio = (ultima_fecha + timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
+            except Exception as e:
+                # Fallback a fecha actual
+                fecha_inicio = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        # Generar predicciones
+        print(f"Generando predicciones para ObjectId: {object_id}, Fecha inicio: {fecha_inicio}")
+        
+        json_predicciones = generar_predicciones_3_dias(
+            object_id=object_id,
+            fecha_inicio_str=fecha_inicio,
+            historical_df=df_global
+        )
+        
+        if json_predicciones is None:
+            return jsonify({
+                'error': 'Error en predicción',
+                'message': f'No se pudieron generar predicciones para ObjectId {object_id}'
+            }), 400
+
+        # Convertir el JSON string a dict para enviarlo como respuesta
+        predicciones_data = json.loads(json_predicciones)
+        
+        # Preparar respuesta con metadatos adicionales
+        response_data = {
+            'success': True,
+            'object_id': object_id,
+            'fecha_inicio': fecha_inicio,
+            'total_predicciones': len(predicciones_data),
+            'predicciones': predicciones_data,
+            'metadata': {
+                'periodo': '3 días',
+                'frecuencia': 'horaria',
+                'variable': 'O3 (µg/m³)',
+                'generado_en': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }
+        }
+        
+        return jsonify(response_data)
+
+    except Exception as e:
+        print(f"Error en prevision_temporal: {str(e)}")
+        return jsonify({
+            'error': 'Error interno del servidor',
+            'message': str(e)
+        }), 500
+
+@app.route('/api/object_ids_disponibles', methods=['GET'])
+def get_object_ids_disponibles():
+    """
+    Endpoint para obtener los object_ids que tienen modelos disponibles
+    """
+    try:
+        object_ids_disponibles = []
+        
+        # Buscar archivos de modelo en la carpeta ML
+        ml_path = os.path.join(os.path.dirname(__file__), 'ML')
+        
+        for filename in os.listdir(ml_path):
+            if filename.startswith("modelo_") and filename.endswith(".pkl"):
+                try:
+                    # Extraer object_id del nombre del archivo
+                    object_id = int(filename.split('_')[1])
+                    
+                    # Verificar que también existe el escalador
+                    escalador_file = f"escalador_{object_id}.pkl"
+                    if os.path.exists(os.path.join(ml_path, escalador_file)):
+                        object_ids_disponibles.append(object_id)
+                        
+                except (IndexError, ValueError):
+                    continue
+        
+        return jsonify({
+            'success': True,
+            'object_ids': sorted(object_ids_disponibles),
+            'total': len(object_ids_disponibles)
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'error': 'Error obteniendo object_ids',
+            'message': str(e)
+        }), 500
+
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """Endpoint para verificar el estado del servicio"""
+    status = {
+        'status': 'OK',
+        'ml_module_loaded': generar_predicciones_3_dias is not None,
+        'data_loaded': df_global is not None,
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    }
+    
+    if df_global is not None:
+        status['total_records'] = len(df_global)
+        status['unique_object_ids'] = df_global['objectId'].nunique()
+        status['date_range'] = {
+            'min': df_global['Fecha'].min().strftime('%Y-%m-%d %H:%M:%S'),
+            'max': df_global['Fecha'].max().strftime('%Y-%m-%d %H:%M:%S')
+        }
+    
+    return jsonify(status)
 
 
 # ==================== RUTAS DE ARCHIVOS ====================

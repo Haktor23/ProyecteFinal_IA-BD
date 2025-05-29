@@ -9,31 +9,610 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    {% for modelo in modelos %}
-    <div class="col-md-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5>{{ modelo.nombre }}</h5>
+<div class="ml-content-scope"> {# <--- NUEVO DIV CONTENEDOR #}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-moment/1.0.1/chartjs-adapter-moment.min.js"></script>
+    <style>
+        /* Estilos ahora aplicados dentro de .ml-content-scope */
+        .ml-content-scope * {
+            /* margin: 0;  /* Considerar si esto es realmente necesario aquí o si base.html ya lo maneja */
+            /* padding: 0; /* Idem */
+            box-sizing: border-box; /* Esto es generalmente seguro y útil */
+        }
+
+        .ml-content-scope { /* Estilos que antes aplicabas a 'body' */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* min-height: 100vh; /* Esto podría ser demasiado si el bloque de contenido no debe ocupar toda la altura. */
+                                 /* Considera usar padding o dejar que el contenido defina la altura. */
+            padding: 25px; /* Añade padding para que el fondo degradado tenga espacio alrededor del contenido interno. */
+            color: #333; /* Color de texto por defecto para esta sección */
+            border-radius: inherit; /* Si el content block de base.html tiene bordes redondeados y quieres que el fondo coincida */
+        }
+
+        /* El selector .container ahora también está limitado a .ml-content-scope si se usa dentro. */
+        .ml-content-scope .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            /* padding: 20px; /* .ml-content-scope ya tiene padding */
+        }
+
+        .ml-content-scope .header {
+            text-align: center;
+            color: white; /* Color específico para el texto del header */
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .ml-content-scope .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .ml-content-scope .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .ml-content-scope .control-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            /* El color de texto por defecto #333 se hereda de .ml-content-scope */
+        }
+
+        .ml-content-scope .form-group {
+            margin-bottom: 20px;
+        }
+
+        .ml-content-scope .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555; /* Color específico para labels */
+        }
+
+        .ml-content-scope .form-group select,
+        .ml-content-scope .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+            color: #333; /* Color del texto dentro de los inputs */
+        }
+
+        .ml-content-scope .form-group select:focus,
+        .ml-content-scope .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .ml-content-scope .predict-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; /* Color del texto del botón */
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ml-content-scope .predict-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .ml-content-scope .predict-btn .btn-text {
+            transition: opacity 0.3s ease;
+        }
+
+        .ml-content-scope .predict-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .ml-content-scope .predict-btn .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .ml-content-scope .predict-btn .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Los @keyframes son globales por naturaleza, no necesitan prefijo a menos que haya conflicto de nombres */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ml-content-scope .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            min-height: 500px;
+        }
+
+        .ml-content-scope .chart-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333; /* Color específico */
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .ml-content-scope .chart-wrapper {
+            position: relative;
+            height: 400px;
+        }
+
+        .ml-content-scope .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .ml-content-scope .stat-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white; /* Color texto tarjeta stat */
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .ml-content-scope .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .ml-content-scope .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .ml-content-scope .error-message {
+            background: #ff6b6b;
+            color: white; /* Color texto mensaje error */
+            padding: 15px;
+            border-radius: 12px;
+            margin: 20px auto; /* Centrado y con margen */
+            display: none;
+            text-align: center;
+            max-width: 90%; /* Para que no ocupe todo el ancho si el panel es muy ancho */
+        }
+
+        .ml-content-scope .success-message {
+            background: #51cf66;
+            color: white; /* Color texto mensaje éxito */
+            padding: 15px;
+            border-radius: 12px;
+            margin: 20px auto; /* Centrado y con margen */
+            display: none;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .ml-content-scope .grid-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .ml-content-scope .grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .ml-content-scope .fade-in { /* La clase se usa dentro del scope */
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn { /* Los keyframes son globales */
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    <div class="header">
+        <h1>🌡️ Predictor de Calidad del Aire</h1>
+        <p>Predicciones de O₃ para los próximos 3 días</p>
+    </div>
+
+    <div class="grid-layout">
+        <div class="control-panel">
+            <h2 style="margin-bottom: 20px; color: #333;">Configuración de Predicción</h2>
+            
+            <div class="form-group">
+                <label for="objectId">Zona (Object ID):</label>
+                <select id="objectId" required>
+                    <option value="">Cargando zonas disponibles...</option>
+                </select>
             </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('machinelearning_modelo', id=modelo.id) }}">
-                    {% for campo in modelo.campos %}
-                    <div class="mb-3">
-                        <label class="form-label">{{ campo.label }}</label>
-                        <input type="number" name="{{ campo.nombre }}" class="form-control" required>
-                    </div>
-                    {% endfor %}
-                    <button type="submit" class="btn btn-primary">Predecir</button>
-                </form>
-                {% if resultados[modelo.id] %}
-                <div class="alert alert-info mt-3">
-                    <strong>Resultado:</strong> {{ resultados[modelo.id] }}
+
+            <div class="form-group">
+                <label for="fechaInicio">Fecha de Inicio (opcional):</label>
+                <input type="datetime-local" id="fechaInicio" />
+                <small style="color: #666; margin-top: 5px; display: block;">
+                    Si no se especifica, se usará la última fecha disponible
+                </small>
+            </div>
+
+            <button class="predict-btn" onclick="generarPrediccion()">
+                <span class="btn-text">🚀 Generar Predicción</span>
+                <div class="loading">
+                    <div class="spinner"></div>
                 </div>
-                {% endif %}
+            </button>
+
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-title">📊 Predicciones de O₃</div>
+            <div class="chart-wrapper">
+                <canvas id="predictionChart"></canvas>
+            </div>
+            
+            <div class="stats-grid" id="statsGrid" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-value" id="statMax">--</div>
+                    <div class="stat-label">Máximo O₃ (µg/m³)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statMin">--</div>
+                    <div class="stat-label">Mínimo O₃ (µg/m³)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statAvg">--</div>
+                    <div class="stat-label">Promedio O₃ (µg/m³)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statTotal">--</div>
+                    <div class="stat-label">Total Predicciones</div>
+                </div>
             </div>
         </div>
     </div>
-    {% endfor %}
-</div>
+
+    <div class="control-panel" style="margin: 30px auto; max-width: 600px;">
+        <h2 style="margin-bottom: 25px; color: #333; text-align: center;">💨 Predicción Puntual de Ozono (O₃)</h2>
+
+        <form id="ozonoForm">
+            <div class="form-group">
+                <label for="co">Monóxido de Carbono (CO)</label>
+                <input type="number" id="co" name="co" step="0.01" required placeholder="Ej: 0.15">
+            </div>
+
+            <div class="form-group">
+                <label for="so2">Dióxido de Azufre (SO₂)</label>
+                <input type="number" id="so2" name="so2" step="0.1" required placeholder="Ej: 4.1">
+            </div>
+
+            <div class="form-group">
+                <label for="pm10">Partículas PM10</label>
+                <input type="number" id="pm10" name="pm10" step="1" required placeholder="Ej: 35">
+            </div>
+
+            <div class="form-group">
+                <label for="pm25">Partículas PM2.5</label>
+                <input type="number" id="pm25" name="pm25" step="1" required placeholder="Ej: 20">
+            </div>
+
+            <div>
+                <button type="submit" class="predict-btn" id="ozonoPredictBtn">
+                    <span class="btn-text">🔍 Predecir Ozono Puntual</span>
+                    <div class="loading">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+            </div>
+        </form>
+
+        <div id="ozonoSuccessMessage" class="success-message" style="display: none;"></div>
+        <div id="ozonoErrorMessage" class="error-message" style="display: none;"></div>
+    </div>
+
+    <script>
+        // TU CÓDIGO JAVASCRIPT PERMANECE IGUAL AQUÍ
+        let chart; // For the temporal prediction chart
+        const API_BASE = '/api';
+
+        // --- Script for Temporal Prediction Chart (first form) ---
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarZonasDisponibles();
+        });
+
+        async function cargarZonasDisponibles() {
+            // ... (esta función permanece igual)
+            try {
+                const response = await fetch(`${API_BASE}/object_ids_disponibles`);
+                const data = await response.json();
+                
+                const selectElement = document.getElementById('objectId');
+                selectElement.innerHTML = '<option value="">Seleccione una zona...</option>';
+                
+                if (data.success && data.object_ids.length > 0) {
+                    data.object_ids.forEach(id => {
+                        const option = document.createElement('option');
+                        option.value = id;
+                        option.textContent = `Zona ${id}`;
+                        selectElement.appendChild(option);
+                    });
+                } else {
+                    selectElement.innerHTML = '<option value="">No hay zonas disponibles</option>';
+                }
+            } catch (error) {
+                console.error('Error cargando zonas:', error);
+                document.getElementById('objectId').innerHTML = '<option value="">Error cargando zonas</option>';
+            }
+        }
+
+        async function generarPrediccion() {
+            // ... (esta función permanece igual)
+            const objectId = document.getElementById('objectId').value;
+            const fechaInicio = document.getElementById('fechaInicio').value;
+            
+            if (!objectId) {
+                mostrarError('Por favor seleccione una zona');
+                return;
+            }
+
+            const btn = document.querySelector('.predict-btn'); // El primer botón
+            const btnText = btn.querySelector('.btn-text');
+            const loading = btn.querySelector('.loading');
+            
+            btn.disabled = true;
+            btnText.style.opacity = '0';
+            loading.style.display = 'block';
+
+            ocultarMensajes(); // Oculta mensajes del primer formulario
+
+            try {
+                const requestBody = { object_id: parseInt(objectId) };
+                if (fechaInicio) {
+                    requestBody.fecha_inicio = fechaInicio.replace('T', ' ') + ':00';
+                }
+
+                const response = await fetch(`${API_BASE}/prevision_temporal`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarExito(`Predicciones generadas exitosamente para la Zona ${objectId}`);
+                    actualizarGrafico(data);
+                    actualizarEstadisticas(data);
+                } else {
+                    mostrarError(data.message || 'Error generando predicciones');
+                }
+
+            } catch (error) {
+                console.error('Error en predicción temporal:', error);
+                mostrarError('Error de conexión con el servidor');
+            } finally {
+                btn.disabled = false;
+                btnText.style.opacity = '1';
+                loading.style.display = 'none';
+            }
+        }
+
+        function actualizarGrafico(data) {
+            // ... (esta función permanece igual)
+            const ctx = document.getElementById('predictionChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+
+            const labels = data.predicciones.map(p => p.fecha);
+            const valores = data.predicciones.map(p => p.o3_predicho);
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'O₃ Predicho (µg/m³)',
+                        data: valores,
+                        borderColor: 'rgb(102, 126, 234)',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgb(102, 126, 234)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Predicciones O₃ - Zona ${data.object_id}`,
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'hour',
+                                displayFormats: {
+                                    hour: 'DD/MM HH:mm'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Fecha y Hora'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'O₃ (µg/m³)'
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        function actualizarEstadisticas(data) {
+            // ... (esta función permanece igual)
+            const valores = data.predicciones.map(p => p.o3_predicho);
+            const max = Math.max(...valores);
+            const min = Math.min(...valores);
+            const avg = valores.reduce((a, b) => a + b, 0) / valores.length;
+
+            document.getElementById('statMax').textContent = max.toFixed(2);
+            document.getElementById('statMin').textContent = min.toFixed(2);
+            document.getElementById('statAvg').textContent = avg.toFixed(2);
+            document.getElementById('statTotal').textContent = data.total_predicciones;
+
+            document.getElementById('statsGrid').style.display = 'grid';
+            document.getElementById('statsGrid').classList.add('fade-in');
+        }
+
+        function mostrarError(mensaje) { // Para el primer formulario
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = mensaje;
+            errorDiv.style.display = 'block';
+            setTimeout(() => errorDiv.style.display = 'none', 5000);
+        }
+
+        function mostrarExito(mensaje) { // Para el primer formulario
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = mensaje;
+            successDiv.style.display = 'block';
+            setTimeout(() => successDiv.style.display = 'none', 3000);
+        }
+
+        function ocultarMensajes() { // Para el primer formulario
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+
+        // --- Script for Puntual Ozone Prediction (second form) ---
+        const ozonoForm = document.getElementById('ozonoForm');
+        const ozonoSuccessMessageDiv = document.getElementById('ozonoSuccessMessage');
+        const ozonoErrorMessageDiv = document.getElementById('ozonoErrorMessage');
+        const ozonoPredictBtn = document.getElementById('ozonoPredictBtn');
+
+
+        ozonoForm.addEventListener('submit', async function(event) {
+            event.preventDefault(); 
+
+            const ozonoBtnText = ozonoPredictBtn.querySelector('.btn-text');
+            const ozonoLoading = ozonoPredictBtn.querySelector('.loading');
+
+            ozonoPredictBtn.disabled = true;
+            if(ozonoBtnText) ozonoBtnText.style.opacity = '0';
+            if(ozonoLoading) ozonoLoading.style.display = 'block';
+            
+            ozonoSuccessMessageDiv.style.display = 'none';
+            ozonoErrorMessageDiv.style.display = 'none';
+
+            const co = parseFloat(document.getElementById('co').value);
+            const so2 = parseFloat(document.getElementById('so2').value);
+            const pm10 = parseFloat(document.getElementById('pm10').value);
+            const pm25 = parseFloat(document.getElementById('pm25').value);
+
+            const data = { co, so2, pm10, pm25 };
+            const apiUrl = `${API_BASE}/ozono`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.prediccion_ozono !== undefined) {
+                    const o3Value = result.prediccion_ozono;
+                    ozonoSuccessMessageDiv.innerHTML = `<strong>Resultado de la Predicción:</strong><br>Nivel de O₃ predicho: ${o3Value.toFixed(2)} µg/m³`;
+                    ozonoSuccessMessageDiv.style.display = 'block';
+                } else {
+                    let errorMessageText = `Error ${response.status}: `;
+                    if (result && result.error) { errorMessageText += result.error; }
+                    else if (result && result.message) { errorMessageText += result.message; }
+                    else { errorMessageText += response.statusText || 'Error desconocido del servidor'; }
+                    if (response.status === 0) { // Network error
+                         errorMessageText = 'Error de red. No se pudo conectar al servidor.';
+                    }
+                    ozonoErrorMessageDiv.textContent = errorMessageText;
+                    ozonoErrorMessageDiv.style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error('Error en la petición fetch para ozono puntual:', error);
+                ozonoErrorMessageDiv.textContent = `Error al conectar con el servidor: ${error.message}`;
+                ozonoErrorMessageDiv.style.display = 'block';
+            } finally {
+                ozonoPredictBtn.disabled = false;
+                if(ozonoBtnText) ozonoBtnText.style.opacity = '1';
+                if(ozonoLoading) ozonoLoading.style.display = 'none';
+            }
+        });
+    </script>
+</div> {# <--- FIN DEL NUEVO DIV CONTENEDOR .ml-content-scope #}
 {% endblock %}
